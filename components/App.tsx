@@ -70,8 +70,11 @@ const JobForm: React.FC<JobFormProps> = ({ onSubmit }) => {
               <FormLabel className={cn("font-bold")}>Privacy Form File Path</FormLabel>
               <FormControl>
                 <div className={cn("flex gap-1")}>
-                  <Input {...field} />
-                  <Button type="button">Select file</Button>
+                  <Input {...field} spellCheck={false} placeholder='/path/to/privacy.csv'/>
+                  <Button type="button" onClick={async () => {
+                    const path = await electron.selectPath();
+                    if (path) form.setValue('privacyFormFilePath', path, { shouldValidate: true });
+                  }}>Select file</Button>
                 </div>
               </FormControl>
               <FormDescription>
@@ -87,10 +90,13 @@ const JobForm: React.FC<JobFormProps> = ({ onSubmit }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className={cn("font-bold")}>Survey File Path</FormLabel>
-              <FormControl>
+              <FormControl >
                 <div className={cn("flex gap-1")}>
-                  <Input {...field} />
-                  <Button type="button">Select file</Button>
+                  <Input {...field} spellCheck={false} placeholder='/path/to/survey.csv'/>
+                  <Button type="button" onClick={async () => {
+                    const path = await electron.selectPath();
+                    if (path) form.setValue('surveyFilePath', path, { shouldValidate: true });
+                  }}>Select file</Button>
                 </div>
               </FormControl>
               <FormDescription>
@@ -109,8 +115,11 @@ const JobForm: React.FC<JobFormProps> = ({ onSubmit }) => {
               <FormLabel className={cn("font-bold")}>Output Directory Path</FormLabel>
               <FormControl>
                 <div className={cn("flex gap-1")}>
-                  <Input {...field} />
-                  <Button type="button">Select directory</Button>
+                  <Input {...field} spellCheck={false} placeholder='/path/to/output' />
+                  <Button type="button" onClick={async () => {
+                    const path = await electron.selectPath({ type: 'directory' });
+                    if (path) form.setValue('outputDirectoryPath', path, { shouldValidate: true });
+                  }}>Select directory</Button>
                 </div>
               </FormControl>
               <FormDescription>
