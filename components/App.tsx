@@ -26,6 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Loader2 } from 'lucide-react';
 
 
 const FormSchema = z.object({
@@ -45,9 +46,7 @@ function JobForm() {
       outputDirectoryPath: import.meta.env.VITE_DEFAULT_OUTPUT_DIR_PATH || '',
     },
   });
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
-  }
+  const isLoading = form.formState.isSubmitting;
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className={cn("flex flex-col space-y-10")}>
@@ -110,7 +109,16 @@ function JobForm() {
           )}
         />
         <hr />
-        <Button type="submit" size="lg">Run job</Button>
+        <Button type="submit" size="lg" disabled={isLoading}>
+          { isLoading ? (
+            <>
+              <Loader2 className={cn("animate-spin inline-block mr-2")} />
+              Working...
+            </>
+          ) : (
+            <>Run job</>
+          )}
+        </Button>
       </form>
     </Form>
   );
@@ -189,7 +197,7 @@ export const App = () => {
   return (
     <main className={cn("p-5")}>
       <h1 className={cn("font-black text-center text-4xl mb-10")}>Consent Matcher</h1>
-      <JobForm />
+      <JobForm onSubmit={onSubmit} />
       <JobResultDialog isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} resultData={resultData} />
     </main>
   );
