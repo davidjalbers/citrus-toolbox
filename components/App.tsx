@@ -155,7 +155,9 @@ const JobResultDialog: React.FC<JobResultDialogProps> = ({ isOpen, setIsOpen, re
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Close</AlertDialogCancel>
-          <AlertDialogAction>Copy to clipboard</AlertDialogAction>
+          <AlertDialogAction onClick={() => {
+            navigator.clipboard.writeText(JSON.stringify(resultData, null, 2));
+          }}>Copy to clipboard</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
