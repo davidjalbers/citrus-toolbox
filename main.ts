@@ -1,5 +1,6 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
+import fs from 'fs/promises';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -29,6 +30,41 @@ app.on('ready', () => {
 
   // Open the DevTools.
   //mainWindow.webContents.openDevTools();
+});
+
+export type SelectPathArg = {
+  type?: 'file' | 'directory',
+};
+ipcMain.handle('select-path', async (event, arg: SelectPathArg = {}) => {
+  const { type = 'file' } = arg;
+  const result = await dialog.showOpenDialog({
+    properties: type === 'file' ? ['openFile'] : ['openDirectory', 'createDirectory']
+  });
+  if (!result.canceled && result.filePaths.length > 0)
+    return result.filePaths[0];
+  return null;
+});
+
+export type ValidatePathArg = {
+  type?: 'file' | 'directory',
+  access?: 'read' | 'readWrite',
+  path: string,
+};
+ipcMain.handle('validate-path', async (event, arg: ValidatePathArg) => {
+  const { type = 'file', access = 'read', path } = arg;
+  const constants = access === 'read' ? fs.constants.R_OK : fs.constants.R_OK | fs.constants.W_OK;
+  try {
+    await fs.access(path, constants);
+    const stat = await fs.stat(path);
+    if (type === 'file' && !stat.isFile()) {
+      return false;
+    } else if (type === 'directory' && !stat.isDirectory()) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    return false;
+  }
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
