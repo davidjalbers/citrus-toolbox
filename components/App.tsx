@@ -28,23 +28,35 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Loader2 } from 'lucide-react';
 
+const filePath = z.string()
+  .trim()
+  .min(1, 'This field is required.')
+  .refine((value) => electron.validatePath({ path: value }), 'This file either does not exist or is not readable.');
+const directoryPath = z.string()
+  .trim()
+  .min(1, 'This field is required.')
+  .refine((value) => electron.validatePath({ path: value, type: 'directory', access: 'readWrite' }), 'This directory either does not exist or is not writable.');
 
-const FormSchema = z.object({
-  privacyFormFilePath: z.string().refine((val) => val.length <= 10, {
-    message: "String can't be more than 10 characters",
-  }),
-  surveyFilePath: z.string(),
-  outputDirectoryPath: z.string(),
+const JobFormSchema = z.object({
+  privacyFormFilePath: filePath,
+  surveyFilePath: filePath,
+  outputDirectoryPath: directoryPath,
 });
+type JobForm = z.infer<typeof JobFormSchema>;
 
-function JobForm() {
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+type JobFormProps = {
+  onSubmit: (data: JobForm) => void | Promise<void>;
+};
+const JobForm: React.FC<JobFormProps> = ({ onSubmit }) => {
+  const form = useForm<JobForm>({
+    resolver: zodResolver(JobFormSchema),
     defaultValues: {
       privacyFormFilePath: import.meta.env.VITE_DEFAULT_PRIVACY_FORM_FILE_PATH || '',
       surveyFilePath: import.meta.env.VITE_DEFAULT_SURVEY_FILE_PATH || '',
       outputDirectoryPath: import.meta.env.VITE_DEFAULT_OUTPUT_DIR_PATH || '',
     },
+    mode: 'onSubmit',
+    reValidateMode: 'onBlur',
   });
   const isLoading = form.formState.isSubmitting;
   return (
