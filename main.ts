@@ -13,7 +13,8 @@ app.on('ready', () => {
     minHeight: 980,
     width: 720,
     height: 1080,
-    //resizable: false,
+    maximizable: false,
+    fullscreenable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     },
