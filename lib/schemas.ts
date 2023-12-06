@@ -51,10 +51,12 @@ export const SurveyEntrySchema = z.object({
 }).passthrough();
 export type SurveyEntry = z.infer<typeof SurveyEntrySchema>;
 
+const status = z.union([z.literal('okValid'), z.literal('errorNoConsent'), z.literal('errorOnlyPrivacyForm'), z.literal('errorOnlySurvey'), z.literal('INVALID')]);
+
 export const AllStudyCodesOutputFileEntrySchema = z.object({
   studyCode: StudyCodeSchema,
-  status: z.union([z.literal('valid'), z.literal('noConsent'), z.literal('onlyPrivacyForm'), z.literal('onlySurvey'), z.literal('invalid')]),
-  indexVisualization: z.union([z.literal('P'), z.literal('S'), z.literal('P+S')]),
+  status,
+  indexVisualization: z.union([z.literal('P'), z.literal('S'), z.literal('P+S'), z.literal('INVALID')]),
   indicesInPrivacyForm: z.array(z.number()),
   indicesInSurvey: z.array(z.number()),
   numberOfDuplicatesInPrivacyForm: z.number(),
@@ -68,9 +70,11 @@ export const ValidStudyCodesOutputFileEntrySchema = AllStudyCodesOutputFileEntry
 });
 export type ValidStudyCodesOutputFileEntry = z.infer<typeof ValidStudyCodesOutputFileEntrySchema>;
 
-export const StudyCodeResultSchema = AllStudyCodesOutputFileEntrySchema.omit({
-  indexVisualization: true,
-  numberOfDuplicatesInPrivacyForm: true,
-  numberOfDuplicatesInSurvey: true,
+export const StudyCodeResultSchema = z.object({
+  status,
+  consent: z.boolean(),
+  indicesInPrivacyForm: z.array(z.number()),
+  indicesInSurvey: z.array(z.number()),
+  passthrough: z.object({}).passthrough(),
 });
 export type StudyCodeResult = z.infer<typeof StudyCodeResultSchema>;
