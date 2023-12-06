@@ -170,7 +170,7 @@ const JobResultDialog: React.FC<JobResultDialogProps> = ({ isOpen, setIsOpen, re
       <AlertDialogContent className={cn("rounded-lg")}>
         <AlertDialogHeader>
           <AlertDialogTitle>Job Execution Report ({resultData.timestamp})</AlertDialogTitle>
-          <AlertDialogDescription className={cn("mb-2 font-bold")}>All operations completed successfully.</AlertDialogDescription>
+          <AlertDialogDescription className={cn("mb-2 font-bold text-green-600")}>All operations completed successfully.</AlertDialogDescription>
           <AlertDialogDescription className={cn("mb-2")}>Read input from <span className={cn("font-mono text-xs")}>`{resultData.privacyFormFileName}`</span> and <span className={cn("font-mono text-xs")}>`{resultData.surveyFileName}`</span>.</AlertDialogDescription>
           <AlertDialogDescription className={cn("mb-2")}>
             Processed a total of {resultData.totalStudyCodes} study codes in {resultData.totalEntries} entries ({resultData.totalDuplicates} duplicates):
