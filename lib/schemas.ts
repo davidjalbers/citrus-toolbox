@@ -15,3 +15,19 @@ export const JobInfoSchema = z.object({
   outputDirectoryPath: directoryPath,
 });
 export type JobInfo = z.infer<typeof JobInfoSchema>;
+
+export const JobResultSchema = z.object({
+  timestamp: z.string(),
+  totalStudyCodes: z.number(),
+  totalEntries: z.number(),
+  totalDuplicates: z.number(),
+  valid: z.number(),
+  noConsent: z.number(),
+  onlyPrivacyForm: z.number(),
+  onlySurvey: z.number(),
+  invalid: z.number(),
+  privacyFormFileName: z.string(),
+  surveyFileName: z.string(),
+  outputDirectoryName: z.string(),
+});
+export type JobResult = z.infer<typeof JobResultSchema>;
