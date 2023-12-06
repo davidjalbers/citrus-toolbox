@@ -57,11 +57,11 @@ export const AllStudyCodesOutputFileEntrySchema = z.object({
 }).passthrough();
 export type AllStudyCodesOutputFileEntry = z.infer<typeof AllStudyCodesOutputFileEntrySchema>;
 
-export const OnlyValidStudyCodesOutputFileEntrySchema = AllStudyCodesOutputFileEntrySchema.omit({ 
+export const ValidStudyCodesOutputFileEntrySchema = AllStudyCodesOutputFileEntrySchema.omit({ 
   status: true,
   indexVisualization: true,
 });
-export type OnlyValidStudyCodesOutputFileEntry = z.infer<typeof OnlyValidStudyCodesOutputFileEntrySchema>;
+export type ValidStudyCodesOutputFileEntry = z.infer<typeof ValidStudyCodesOutputFileEntrySchema>;
 
 export const StudyCodeResultSchema = AllStudyCodesOutputFileEntrySchema.omit({
   indexVisualization: true,
