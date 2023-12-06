@@ -3,7 +3,8 @@ import * as z from 'zod';
 const filePath = z.string()
   .trim()
   .min(1, 'This field is required.')
-  .refine((value) => electron.validatePath({ path: value }), 'This file either does not exist or is not readable.');
+  .refine((value) => electron.validatePath({ path: value }), 'This file either does not exist or is not readable.')
+  .refine((value) => value.endsWith('.csv'), 'Only CSV files are supported.' )
 const directoryPath = z.string()
   .trim()
   .min(1, 'This field is required.')
