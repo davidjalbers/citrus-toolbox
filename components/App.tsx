@@ -9,23 +9,9 @@ export const App = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [resultData, setResultData] = useState<JobResult|null>(null);
   const runJob = useCallback(async (info: JobInfo) => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setResultData({
-      timestamp: new Date().toISOString(),
-      totalStudyCodes: 511,
-      totalEntries: 934,
-      totalDuplicates: 102,
-      valid: 384,
-      invalid: 28,
-      noConsent: 49,
-      onlyPrivacyForm: 40,
-      onlySurvey: 10,
-      privacyFormFileName: 'Datenschutz.csv',
-      surveyFileName: 'Umfrage.csv',
-      outputDirectoryName: 'citrus-toolbox',
-    });
+    const result = await electron.runJob(info);
+    setResultData(result);
     setIsDialogOpen(true);
-    console.log(data)
   }, [setIsDialogOpen, setResultData]);
   return (
     <main className={cn("p-5")}>

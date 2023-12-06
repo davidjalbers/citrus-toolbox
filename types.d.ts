@@ -19,6 +19,7 @@ declare global {
   const electron: {
     selectPath: (arg?: SelectPathArg) => Promise<string|null>;
     validatePath: (arg: ValidatePathArg) => Promise<boolean>;
+    runJob: (arg: JobInfo) => Promise<JobResult>;
   }
 
 }
