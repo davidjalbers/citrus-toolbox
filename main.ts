@@ -111,12 +111,12 @@ async function runJobImpl(info: JobInfo): Promise<JobResult> {
       .on('error', (error) => { return; }) // TODO handle properly
       .on('data-invalid', row => { return; }) // TODO handle properly
       .on('data', row => {
-        jobResult.totalEntries++;
         const parseResult = PrivacyFormEntrySchema.safeParse(row);
         if (!parseResult.success) {
           // TODO handle properly
           return;
         } 
+        jobResult.totalEntries++;
         const { index, studyCode, consent }: PrivacyFormEntry = parseResult.data;
         if (!studyCodes.has(studyCode)) {
           studyCodes.set(studyCode, {
@@ -145,12 +145,12 @@ async function runJobImpl(info: JobInfo): Promise<JobResult> {
       .on('error', (error) => { return; }) // TODO handle properly
       .on('data-invalid', row => { return; }) // TODO handle properly
       .on('data', row => {
-        jobResult.totalEntries++;
         const parseResult = SurveyEntrySchema.safeParse(row);
         if (!parseResult.success) {
           // TODO handle properly
           return;
         } 
+        jobResult.totalEntries++;
         const { index, studyCode, ...passthrough }: SurveyEntry = parseResult.data;
         if (!studyCodes.has(studyCode)) {
           studyCodes.set(studyCode, {
