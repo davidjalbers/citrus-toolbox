@@ -31,3 +31,41 @@ export const JobResultSchema = z.object({
   outputDirectoryName: z.string(),
 });
 export type JobResult = z.infer<typeof JobResultSchema>;
+
+export const StudyCodeSchema = z.string().regex(/^[A-Z]{4}[0-9]{2}$/);
+export type StudyCode = z.infer<typeof StudyCodeSchema>;
+
+export const PrivacyFormEntrySchema = z.object({
+  studyCode: StudyCodeSchema,
+  consent: z.boolean(),
+});
+export type PrivacyFormEntry = z.infer<typeof PrivacyFormEntrySchema>;
+
+export const SurveyEntrySchema = z.object({
+  studyCode: StudyCodeSchema,
+}).passthrough();
+export type SurveyEntry = z.infer<typeof SurveyEntrySchema>;
+
+export const AllStudyCodesOutputFileEntrySchema = z.object({
+  studyCode: StudyCodeSchema,
+  status: z.union([z.literal('valid'), z.literal('noConsent'), z.literal('onlyPrivacyForm'), z.literal('onlySurvey'), z.literal('invalid')]),
+  indexVisualization: z.union([z.literal('P'), z.literal('S'), z.literal('P+S')]),
+  indicesInPrivacyForm: z.array(z.number()),
+  indicesInSurvey: z.array(z.number()),
+  numberOfDuplicatesInPrivacyForm: z.number(),
+  numberOfDuplicatesInSurvey: z.number(),
+}).passthrough();
+export type AllStudyCodesOutputFileEntry = z.infer<typeof AllStudyCodesOutputFileEntrySchema>;
+
+export const OnlyValidStudyCodesOutputFileEntrySchema = AllStudyCodesOutputFileEntrySchema.omit({ 
+  status: true,
+  indexVisualization: true,
+});
+export type OnlyValidStudyCodesOutputFileEntry = z.infer<typeof OnlyValidStudyCodesOutputFileEntrySchema>;
+
+export const StudyCodeResultSchema = AllStudyCodesOutputFileEntrySchema.omit({
+  indexVisualization: true,
+  numberOfDuplicatesInPrivacyForm: true,
+  numberOfDuplicatesInSurvey: true,
+});
+export type StudyCodeResult = z.infer<typeof StudyCodeResultSchema>;
