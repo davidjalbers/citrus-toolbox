@@ -96,7 +96,8 @@ export const JobCreationForm: React.FC<JobCreationFormProps> = ({ onSubmit }) =>
                 </div>
               </FormControl>
               <FormDescription>
-                Enter the path to the output directory or select it.
+                Enter the path to the output directory or select it.<br />
+                <strong>Caution:</strong> Existing files will be overwritten without further warning!
               </FormDescription>
               <FormMessage />
             </FormItem>
