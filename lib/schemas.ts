@@ -41,7 +41,7 @@ const index = z.string().transform((value) => parseInt(value));
 export const PrivacyFormEntrySchema = z.object({
   index,
   studyCode: StudyCodeSchema,
-  consent: z.boolean(),
+  consent: z.union([z.literal('JA, ich willige ein'), z.literal('Nein, ich willige nicht ein')]),
 });
 export type PrivacyFormEntry = z.infer<typeof PrivacyFormEntrySchema>;
 
