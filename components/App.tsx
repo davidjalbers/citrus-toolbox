@@ -29,7 +29,7 @@ export const App = () => {
   }, [setIsDialogOpen, setResultData]);
   return (
     <main className={cn("p-5")}>
-      <h1 className={cn("font-black text-center text-4xl mb-10")}>Consent Matcher</h1>
+      <h1 className={cn("font-black text-center text-4xl mb-10")}>P+S Matcher</h1>
       <JobCreationForm onSubmit={runJob} />
       <JobResultDialog isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} resultData={resultData} />
     </main>
