@@ -55,7 +55,7 @@ export const AllStudyCodesOutputFileEntrySchema = z.object({
   indicesInSurvey: z.array(z.number()),
   numberOfDuplicatesInPrivacyForm: z.number(),
   numberOfDuplicatesInSurvey: z.number(),
-}).passthrough();
+});
 export type AllStudyCodesOutputFileEntry = z.infer<typeof AllStudyCodesOutputFileEntrySchema>;
 
 export const ValidStudyCodesOutputFileEntrySchema = AllStudyCodesOutputFileEntrySchema.omit({ 
