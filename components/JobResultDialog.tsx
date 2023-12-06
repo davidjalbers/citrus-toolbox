@@ -16,7 +16,7 @@ import { JobResult } from "@/lib/schemas";
 type JobResultDialogProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  resultData: JobResult,
+  resultData: JobResult | null,
 };
 export const JobResultDialog: React.FC<JobResultDialogProps> = ({ isOpen, setIsOpen, resultData }) => {
   if (!resultData) return null;

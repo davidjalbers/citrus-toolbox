@@ -2,13 +2,13 @@ import React, { useCallback, useState } from 'react';
 
 import { JobCreationForm } from '@/components/JobCreationForm';
 import { JobResultDialog } from '@/components/JobResultDialog';
-import { JobResult } from '@/lib/schemas';
+import { JobInfo, JobResult } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 export const App = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [resultData, setResultData] = useState<JobResult|null>(null);
-  const runJob = useCallback(async (data: JobCreationForm) => {
+  const runJob = useCallback(async (info: JobInfo) => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setResultData({
       timestamp: new Date().toISOString(),
