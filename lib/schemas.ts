@@ -36,13 +36,17 @@ export type JobResult = z.infer<typeof JobResultSchema>;
 export const StudyCodeSchema = z.string().regex(/^[A-Z]{4}[0-9]{2}$/);
 export type StudyCode = z.infer<typeof StudyCodeSchema>;
 
+const index = z.string().transform((value) => parseInt(value));
+
 export const PrivacyFormEntrySchema = z.object({
+  index,
   studyCode: StudyCodeSchema,
   consent: z.boolean(),
 });
 export type PrivacyFormEntry = z.infer<typeof PrivacyFormEntrySchema>;
 
 export const SurveyEntrySchema = z.object({
+  index,
   studyCode: StudyCodeSchema,
 }).passthrough();
 export type SurveyEntry = z.infer<typeof SurveyEntrySchema>;
