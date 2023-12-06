@@ -32,7 +32,7 @@ export const JobResultDialog: React.FC<JobResultDialogProps> = ({ isOpen, setIsO
             <li>{resultData.valid} valid and usable</li>
             <li>{resultData.noConsent} without consent to use of data</li>
             <li>{resultData.onlyPrivacyForm} only in privacy form (no entries found in survey data)</li>
-            <li>{resultData.onlySurvey} only in survey (no entries found privacy form data)</li>
+            <li>{resultData.onlySurvey} only in survey (no entries found in privacy form data)</li>
             <li>{resultData.invalid} invalid</li>
           </AlertDialogDescription>
         <AlertDialogDescription className={cn("mb-2")}>Output files written to <span className={cn("font-mono text-xs")}>`{resultData.outputDirectoryName}`</span>.</AlertDialogDescription>
