@@ -174,8 +174,6 @@ async function runJobImpl(info: JobInfo): Promise<JobResult> {
 
   // All data is now gathered. Now we can process it and then write the output files.
 
-  console.log(studyCodes)
-
   // StudyCodes_all.csv
   const allStudyCodesOutputFilePath = path.join(info.outputDirectoryPath, 'StudyCodes_all.csv');
   const wsAllStudyCodes = fs.createWriteStream(allStudyCodesOutputFilePath);
@@ -239,6 +237,9 @@ async function runJobImpl(info: JobInfo): Promise<JobResult> {
       csvValidStudyCodes.write(postProcessEntryForOutput(validEntry, passthrough));
     }
   });
+
+  console.log('Study Codes:')
+  console.log(studyCodes)
 
   // PrivacyForm_commented.csv
   const commentedPrivacyFormFilePath = path.join(info.outputDirectoryPath, `${path.basename(info.privacyFormFilePath, '.csv')}_commented.csv`);
