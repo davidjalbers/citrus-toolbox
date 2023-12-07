@@ -6,7 +6,7 @@ type JobMap = Map<StudyCode, StudyCodeResult>;
 
 async function populateMapWithPrivacyFormData(map: JobMap, stream: ReadableStream, stats?: JobResult) {}
 async function populateMapWithSurveyData(map: JobMap, stream: ReadableStream, stats?: JobResult) {}
-async function computeDerivedFields(map: JobMap, stats?: JobResult) {}
+async function computeStatus(map: JobMap, stats?: JobResult) {}
 async function writeAllStudyCodesFile(map: JobMap, stream: WritableStream) {}
 async function writeValidStudyCodesFile(map: JobMap, stream: WritableStream) {}
 async function writeCommentedPrivacyFormFile(map: JobMap, stream: WritableStream) {}
@@ -33,7 +33,7 @@ export async function runJobImpl(info: JobInfo) {
 
   await populateMapWithPrivacyFormData(map, stream, stats);
   await populateMapWithSurveyData(map, stream, stats);
-  await computeDerivedFields(map, stats); // status and indexVisualization
+  await computeStatus(map, stats);
 
   // TODO: create output streams
 
