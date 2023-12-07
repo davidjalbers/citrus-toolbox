@@ -93,3 +93,6 @@ out/
 
 # Yarn
 .yarn
+
+# Test csv files
+*.csv
