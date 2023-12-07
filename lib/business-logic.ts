@@ -3,15 +3,15 @@ import fs from 'fs';
 import * as csv from 'fast-csv';
 import { CsvParserStream, ParserRow, CsvFormatterStream, FormatterRow } from "fast-csv";
 
-import { AllStudyCodesOutputFileEntry, JobInfo, JobResult, PrivacyFormEntry, PrivacyFormEntrySchema, StudyCode, StudyCodeResult, SurveyEntry, SurveyEntrySchema, ValidStudyCodesOutputFileEntry, ValidStudyCodesOutputFileEntrySchema } from '@/lib/schemas';
+import { AllStudyCodesOutputFileEntry, JobInfo, JobResult, PrivacyFormEntry, PrivacyFormEntrySchema, StudyCode, StudyCodeResult, SurveyEntry, SurveyEntrySchema, ValidStudyCodesOutputFileEntry } from '@/lib/schemas';
 import { toUpperSnake } from '@/lib/utils';
 
 type JobMap = Map<StudyCode, StudyCodeResult>;
-type CsvInputStream = CsvParserStream<ParserRow<any>, ParserRow<any>>;
+type CsvInputStream = CsvParserStream<ParserRow, ParserRow>;
 type CsvOutputStream = CsvFormatterStream<FormatterRow, FormatterRow>;
 
-async function populateMapWithPrivacyFormData(map: JobMap, stream: CsvInputStream, stats?: JobResult) {
-  await new Promise<void>(resolve => {
+function populateMapWithPrivacyFormData(map: JobMap, stream: CsvInputStream, stats?: JobResult) {
+  return new Promise<void>(resolve => {
     const isValidConsent = (string: string) => string === 'JA, ich willige ein';
     stream
       .on('error', (error) => { return; }) // TODO handle properly
@@ -45,8 +45,8 @@ async function populateMapWithPrivacyFormData(map: JobMap, stream: CsvInputStrea
   });
 }
 
-async function populateMapWithSurveyData(map: JobMap, stream: CsvInputStream, stats?: JobResult) {
-  await new Promise<void>(resolve => {
+function populateMapWithSurveyData(map: JobMap, stream: CsvInputStream, stats?: JobResult) {
+  return new Promise<void>(resolve => {
     stream
       .on('error', (error) => { return; }) // TODO handle properly
       .on('data-invalid', row => { return; }) // TODO handle properly
@@ -79,7 +79,7 @@ async function populateMapWithSurveyData(map: JobMap, stream: CsvInputStream, st
   });
 }
 
-async function computeStatus(map: JobMap, stats?: JobResult) {
+function computeStatus(map: JobMap, stats?: JobResult) {
   map.forEach((result, studyCode) => {
     const { consent, indicesInPrivacyForm, indicesInSurvey } = result;
     let status: AllStudyCodesOutputFileEntry['status']
@@ -124,40 +124,48 @@ const getIndexVisualizationFromStatus = (status: AllStudyCodesOutputFileEntry['s
   }
 }
 
-async function writeAllStudyCodesFile(map: JobMap, stream: CsvOutputStream) {
-  map.forEach((result, studyCode) => {
-    const { status, indicesInPrivacyForm, indicesInSurvey, passthrough } = result;
-    const entry: AllStudyCodesOutputFileEntry = { 
-      studyCode, 
-      status, 
-      indexVisualization: getIndexVisualizationFromStatus(status), 
-      indicesInPrivacyForm, 
-      indicesInSurvey, 
-      numberOfDuplicatesInPrivacyForm: Math.max(indicesInPrivacyForm.length - 1, 0),
-      numberOfDuplicatesInSurvey: Math.max(indicesInSurvey.length - 1, 0)
-    };
-    stream.write(postProcessEntryForOutput(entry, passthrough));
-  });
-}
-
-async function writeValidStudyCodesFile(map: JobMap, stream: CsvOutputStream) {
-  map.forEach((result, studyCode) => {
-    const { status, indicesInPrivacyForm, indicesInSurvey, passthrough } = result;
-    if (status === 'okValid') {
-      const entry: ValidStudyCodesOutputFileEntry = { 
-        studyCode,
+function writeAllStudyCodesFile(map: JobMap, stream: CsvOutputStream) {
+  return new Promise<void>(resolve => {
+    map.forEach((result, studyCode) => {
+      const { status, indicesInPrivacyForm, indicesInSurvey, passthrough } = result;
+      const entry: AllStudyCodesOutputFileEntry = { 
+        studyCode, 
+        status, 
+        indexVisualization: getIndexVisualizationFromStatus(status), 
         indicesInPrivacyForm, 
         indicesInSurvey, 
         numberOfDuplicatesInPrivacyForm: Math.max(indicesInPrivacyForm.length - 1, 0),
         numberOfDuplicatesInSurvey: Math.max(indicesInSurvey.length - 1, 0)
       };
       stream.write(postProcessEntryForOutput(entry, passthrough));
-    }
-  });
+    });
+    stream.end();
+    stream.on('finish', () => resolve());
+  })
 }
 
-async function writeCommentedPrivacyFormFile(map: JobMap, inStream: CsvInputStream, outStream: CsvOutputStream) {
-  await new Promise<void>(resolve => {
+function writeValidStudyCodesFile(map: JobMap, stream: CsvOutputStream) {
+  return new Promise<void>(resolve => {
+    map.forEach((result, studyCode) => {
+      const { status, indicesInPrivacyForm, indicesInSurvey, passthrough } = result;
+      if (status === 'okValid') {
+        const entry: ValidStudyCodesOutputFileEntry = { 
+          studyCode,
+          indicesInPrivacyForm, 
+          indicesInSurvey, 
+          numberOfDuplicatesInPrivacyForm: Math.max(indicesInPrivacyForm.length - 1, 0),
+          numberOfDuplicatesInSurvey: Math.max(indicesInSurvey.length - 1, 0)
+        };
+        stream.write(postProcessEntryForOutput(entry, passthrough));
+      }
+    });
+    stream.end();
+    stream.on('finish', () => resolve());
+  })
+}
+
+function writeCommentedPrivacyFormFile(map: JobMap, inStream: CsvInputStream, outStream: CsvOutputStream) {
+  return new Promise<void>(resolve => {
     inStream
       .on('error', (error) => { return; }) // TODO handle properly
       .on('data-invalid', row => { return; }) // TODO handle properly
@@ -173,12 +181,15 @@ async function writeCommentedPrivacyFormFile(map: JobMap, inStream: CsvInputStre
         const lastOccurrence = result.indicesInPrivacyForm.at(-1);
         outStream.write({ ...row, status: toUpperSnake(result.status), mostRecentOccurrence: lastOccurrence == index ? 'THIS' : lastOccurrence });
       })
-      .on('end', () => resolve());
+      .on('end', () => {
+        outStream.end();
+        outStream.on('finish', () => resolve());
+      });
   });
 }
 
-async function writeCommentedSurveyFile(map: JobMap, inStream: CsvInputStream, outStream: CsvOutputStream) {
-  await new Promise<void>(resolve => {
+function writeCommentedSurveyFile(map: JobMap, inStream: CsvInputStream, outStream: CsvOutputStream) {
+  return new Promise<void>(resolve => {
     inStream
       .on('error', (error) => { return; }) // TODO handle properly
       .on('data-invalid', row => { return; }) // TODO handle properly
@@ -194,7 +205,10 @@ async function writeCommentedSurveyFile(map: JobMap, inStream: CsvInputStream, o
         const lastOccurrence = result.indicesInSurvey.at(-1);
         outStream.write({ ...row, status: toUpperSnake(result.status), mostRecentOccurrence: lastOccurrence == index ? 'THIS' : lastOccurrence });
       })
-      .on('end', () => resolve());
+      .on('end', () => {
+        outStream.end();
+        outStream.on('finish', () => resolve());
+      });
   });
 }
 
@@ -226,10 +240,11 @@ export async function runJobImpl(info: JobInfo) {
 
   await populateMapWithPrivacyFormData(map, csvPrivacyForm1, stats);
   await populateMapWithSurveyData(map, csvSurvey1, stats);
-  await computeStatus(map, stats);
+  
+  computeStatus(map, stats);
 
-  console.log('Study Codes:');
-  console.log(map);
+  //console.log('Study Codes:');
+  //console.log(map);
 
   const csvAllStudyCodes: CsvOutputStream = csv.format({ headers: true });
   const csvValidStudyCodes: CsvOutputStream = csv.format({ headers: true });
@@ -240,7 +255,7 @@ export async function runJobImpl(info: JobInfo) {
   csvCommentedPrivacyForm.pipe(fs.createWriteStream(path.join(info.outputDirectoryPath, `${path.basename(info.privacyFormFilePath, '.csv')}_commented.csv`)));
   csvCommentedSurvey.pipe(fs.createWriteStream(path.join(info.outputDirectoryPath, `${path.basename(info.surveyFilePath, '.csv')}_commented.csv`)));
   
-  await Promise.all([
+  await Promise.allSettled([
     writeAllStudyCodesFile(map, csvAllStudyCodes),
     writeValidStudyCodesFile(map, csvValidStudyCodes),
     writeCommentedPrivacyFormFile(map, csvPrivacyForm2, csvCommentedPrivacyForm),
