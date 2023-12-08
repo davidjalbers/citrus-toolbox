@@ -73,17 +73,15 @@ export function writeValidStudyCodesFile(map: JobMap, stream: CsvOutputStream) {
 
 export function writeCommentedFile(map: JobMap, inStream: CsvInputStream, outStream: CsvOutputStream) {
   const schema = PrivacyFormEntrySchema.or(SurveyEntrySchema);
-  return new Promise<void>(resolve => {
-    readParsedEntriesFromCsvStream<z.infer<typeof schema>>(inStream, schema, (entry, row) => {
+  return waitForWriteStream(outStream, () => {
+    // TODO remove validation functionality from readParsedEntriesFromCsvStream? Currently using it for writing the commented file results in invalid/unparsable rows being left out.
+    return readParsedEntriesFromCsvStream<z.infer<typeof schema>>(inStream, schema, (entry, row) => {
       if (typeof row !== 'object') return; // TODO handle properly (should never happen)
       const { studyCode, index } = entry;
       const result = map.get(studyCode);
       if (!result) return; // should never happen, just for TS (?)
       const lastOccurrence = result.indicesInSurvey.at(-1);
       outStream.write({ ...row, status: toUpperSnake(result.status), mostRecentOccurrence: lastOccurrence == index ? 'THIS' : lastOccurrence });
-    }).then(() => {
-      outStream.end();
-      outStream.on('finish', () => resolve());
     });
   });
 }
