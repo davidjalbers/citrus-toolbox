@@ -1,8 +1,8 @@
 {
-  "name": "@davidjalbers/citrus-toolbox",
+  "name": "citrus-toolbox",
   "productName": "CITRUS Toolbox",
-  "version": "0.3.0-alpha",
-  "description": "My Electron application description",
+  "version": "0.4.0",
+  "description": "CITRUS Toolbox",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
