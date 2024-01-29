@@ -100,20 +100,25 @@ export async function processColumnDefinitionAndRunJobImpl(info: InputSelection 
 
   await readPrivacyFormFileIntoMap(map, csvPrivacyForm1, stats);
   await readSurveyFileIntoMap(map, csvSurvey1, stats);
+
+  rsPrivacyForm.close();
+  rsSurvey.close();
+  csvPrivacyForm1.destroy();
+  csvSurvey1.destroy();
   
   computeStatus(map, stats);
 
   //console.log('Study Codes:');
   //console.log(map);
 
-  const csvAllStudyCodes: CsvOutputStream = csv.format({ headers: true });
-  const csvValidStudyCodes: CsvOutputStream = csv.format({ headers: true });
-  const csvCommentedPrivacyForm: CsvOutputStream = csv.format({ headers: true });
-  const csvCommentedSurvey: CsvOutputStream = csv.format({ headers: true });
-  csvAllStudyCodes.pipe(fs.createWriteStream(path.join(info.outputDirectoryPath, 'StudyCodes_all.csv')));
-  csvValidStudyCodes.pipe(fs.createWriteStream(path.join(info.outputDirectoryPath, 'StudyCodes_valid.csv')));
-  csvCommentedPrivacyForm.pipe(fs.createWriteStream(path.join(info.outputDirectoryPath, `${path.basename(info.privacyFormFilePath, '.csv')}_commented.csv`)));
-  csvCommentedSurvey.pipe(fs.createWriteStream(path.join(info.outputDirectoryPath, `${path.basename(info.surveyFilePath, '.csv')}_commented.csv`)));
+  const csvAllStudyCodes: CsvOutputStream = csv.format({ headers: true, delimiter: info.separator });
+  const csvValidStudyCodes: CsvOutputStream = csv.format({ headers: true, delimiter: info.separator });
+  const csvCommentedPrivacyForm: CsvOutputStream = csv.format({ headers: true, delimiter: info.separator });
+  const csvCommentedSurvey: CsvOutputStream = csv.format({ headers: true, delimiter: info.separator });
+  const wsAllStudyCodes = csvAllStudyCodes.pipe(fs.createWriteStream(path.join(info.outputDirectoryPath, 'StudyCodes_all.csv')));
+  const wsValidStudyCodes = csvValidStudyCodes.pipe(fs.createWriteStream(path.join(info.outputDirectoryPath, 'StudyCodes_valid.csv')));
+  const wsCommentedPrivacyForm = csvCommentedPrivacyForm.pipe(fs.createWriteStream(path.join(info.outputDirectoryPath, `${path.basename(info.privacyFormFilePath, '.csv')}_commented.csv`)));
+  const wsCommentedSurvey = csvCommentedSurvey.pipe(fs.createWriteStream(path.join(info.outputDirectoryPath, `${path.basename(info.surveyFilePath, '.csv')}_commented.csv`)));
   
   await Promise.allSettled([
     writeAllStudyCodesFile(map, csvAllStudyCodes),
@@ -121,6 +126,17 @@ export async function processColumnDefinitionAndRunJobImpl(info: InputSelection 
     writeCommentedFile(map, csvPrivacyForm2, csvCommentedPrivacyForm),
     writeCommentedFile(map, csvSurvey2, csvCommentedSurvey),
   ]);
+
+  csvPrivacyForm2.destroy();
+  csvSurvey2.destroy();
+  csvAllStudyCodes.destroy();
+  csvValidStudyCodes.destroy();
+  csvCommentedPrivacyForm.destroy();
+  csvCommentedSurvey.destroy();
+  wsAllStudyCodes.close();
+  wsValidStudyCodes.close();
+  wsCommentedPrivacyForm.close();
+  wsCommentedSurvey.close();
 
   return stats;
 }
