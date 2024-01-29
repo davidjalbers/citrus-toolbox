@@ -1,9 +1,9 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import path from 'path';
 import * as fs from 'fs/promises';
 
-import { runJobImpl } from '@/lib/business-logic';
-import { JobInfo } from '@/lib/schemas';
+import { processColumnDefinitionAndRunJobImpl, processInputSelectionImpl } from '@/lib/business-logic';
+import { ColumnDefinition, InputSelection } from '@/lib/schemas';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -70,7 +70,12 @@ ipcMain.handle('validate-path', async (event, arg: ValidatePathArg) => {
   }
 });
 
-ipcMain.handle('run-job', (event, arg: JobInfo) => runJobImpl(arg));
+ipcMain.handle('process-input-selection', (event, arg: InputSelection) => processInputSelectionImpl(arg));
+ipcMain.handle('process-column-definition-and-run-job', (event, arg: InputSelection & ColumnDefinition) => processColumnDefinitionAndRunJobImpl(arg));
+
+ipcMain.handle('open-external', (event, url: string) => {
+  shell.openExternal(url);
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

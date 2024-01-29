@@ -3,13 +3,27 @@ import fs from 'fs';
 import * as csv from 'fast-csv';
 import { CsvParserStream, ParserRow, CsvFormatterStream, FormatterRow } from "fast-csv";
 
-import { AllStudyCodesOutputFileEntry, JobInfo, JobResult, StudyCode, StudyCodeResult } from '@/lib/schemas';
-import { readPrivacyFormFileIntoMap, readSurveyFileIntoMap } from "./input";
+import { AllStudyCodesOutputFileEntry, ColumnDefinition, InputSelection, InputSelectionResult, JobResult, StudyCode, StudyCodeResult } from '@/lib/schemas';
+import { getHeadersFromCsvStream, readPrivacyFormFileIntoMap, readSurveyFileIntoMap } from "./input";
 import { writeAllStudyCodesFile, writeCommentedFile, writeValidStudyCodesFile } from "./output";
 
 export type JobMap = Map<StudyCode, StudyCodeResult>;
 export type CsvInputStream = CsvParserStream<ParserRow, ParserRow>;
 export type CsvOutputStream = CsvFormatterStream<FormatterRow, FormatterRow>;
+
+export async function processInputSelectionImpl(info: InputSelection): Promise<InputSelectionResult> {
+  const rsPrivacyForm = fs.createReadStream(info.privacyFormFilePath);
+  const csvPrivacyForm: CsvInputStream = rsPrivacyForm.pipe(csv.parse({ headers: true, delimiter: info.separator }));
+  const privacyFormFileHeaders = await getHeadersFromCsvStream(csvPrivacyForm);
+  rsPrivacyForm.close();
+  csvPrivacyForm.destroy();
+  const rsSurvey = fs.createReadStream(info.surveyFilePath);
+  const csvSurvey: CsvInputStream = rsSurvey.pipe(csv.parse({ headers: true, delimiter: info.separator }));
+  const surveyFileHeaders = await getHeadersFromCsvStream(csvSurvey);
+  rsSurvey.close();
+  csvSurvey.destroy();
+  return { privacyFormFileHeaders, surveyFileHeaders };
+}
 
 function computeStatus(map: JobMap, stats?: JobResult) {
   map.forEach((result, studyCode) => {
@@ -38,8 +52,28 @@ function computeStatus(map: JobMap, stats?: JobResult) {
   });
 }
 
-export async function runJobImpl(info: JobInfo) {
+export async function processColumnDefinitionAndRunJobImpl(info: InputSelection & ColumnDefinition): Promise<JobResult> {
   await new Promise((resolve) => setTimeout(resolve, 2000));
+
+  const privacyFormHeadersFn = (headers: string[]) => {
+    if (!headers.includes(info.privacyFormStudyCodeColumn)) throw new Error(`Column ${info.privacyFormStudyCodeColumn} not found in privacy form file`);
+    if (!headers.includes(info.privacyFormConsentColumn)) throw new Error(`Column ${info.privacyFormConsentColumn} not found in privacy form file`);
+    return headers.map(header => {
+      if (header === info.privacyFormIndexColumn) return 'index';
+      if (header === info.privacyFormStudyCodeColumn) return 'studyCode';
+      if (header === info.privacyFormConsentColumn) return 'consent';
+      return header;
+    });
+  }
+
+  const surveyHeadersFn = (headers: string[]) => {
+    if (!headers.includes(info.surveyStudyCodeColumn)) throw new Error(`Column ${info.surveyStudyCodeColumn} not found in survey file`);
+    return headers.map(header => {
+      if (header === info.surveyIndexColumn) return 'index';
+      if (header === info.surveyStudyCodeColumn) return 'studyCode';
+      return header;
+    });
+  }
 
   const map: JobMap = new Map();
   const stats: JobResult = {
@@ -59,10 +93,10 @@ export async function runJobImpl(info: JobInfo) {
 
   const rsPrivacyForm = fs.createReadStream(info.privacyFormFilePath);
   const rsSurvey = fs.createReadStream(info.surveyFilePath);
-  const csvPrivacyForm1: CsvInputStream = rsPrivacyForm.pipe(csv.parse({ headers: true }));
-  const csvSurvey1: CsvInputStream = rsSurvey.pipe(csv.parse({ headers: true }));
-  const csvPrivacyForm2: CsvInputStream = rsPrivacyForm.pipe(csv.parse({ headers: true }));
-  const csvSurvey2: CsvInputStream = rsSurvey.pipe(csv.parse({ headers: true }));
+  const csvPrivacyForm1: CsvInputStream = rsPrivacyForm.pipe(csv.parse({ headers: privacyFormHeadersFn, delimiter: info.separator }));
+  const csvSurvey1: CsvInputStream = rsSurvey.pipe(csv.parse({ headers: surveyHeadersFn, delimiter: info.separator }));
+  const csvPrivacyForm2: CsvInputStream = rsPrivacyForm.pipe(csv.parse({ headers: privacyFormHeadersFn, delimiter: info.separator }));
+  const csvSurvey2: CsvInputStream = rsSurvey.pipe(csv.parse({ headers: surveyHeadersFn, delimiter: info.separator }));
 
   await readPrivacyFormFileIntoMap(map, csvPrivacyForm1, stats);
   await readSurveyFileIntoMap(map, csvSurvey1, stats);

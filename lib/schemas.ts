@@ -10,12 +10,28 @@ const directoryPath = z.string()
   .min(1, 'This field is required.')
   .refine((value) => electron.validatePath({ path: value, type: 'directory', access: 'readWrite' }), 'This directory either does not exist or is not writable.');
 
-export const JobInfoSchema = z.object({
+export const InputSelectionSchema = z.object({
+  separator: z.union([z.literal(','), z.literal(';')]),
   privacyFormFilePath: filePath,
   surveyFilePath: filePath,
   outputDirectoryPath: directoryPath,
 });
-export type JobInfo = z.infer<typeof JobInfoSchema>;
+export type InputSelection = z.infer<typeof InputSelectionSchema>;
+
+export const InputSelectionResultSchema = z.object({
+  privacyFormFileHeaders: z.array(z.string()),
+  surveyFileHeaders: z.array(z.string()),
+});
+export type InputSelectionResult = z.infer<typeof InputSelectionResultSchema>;
+
+export const ColumnDefinitionSchema = z.object({
+  privacyFormIndexColumn: z.string(),
+  privacyFormStudyCodeColumn: z.string(),
+  privacyFormConsentColumn: z.string(),
+  surveyIndexColumn: z.string(),
+  surveyStudyCodeColumn: z.string(),
+});
+export type ColumnDefinition = z.infer<typeof ColumnDefinitionSchema>;
 
 export const JobResultSchema = z.object({
   timestamp: z.string(),

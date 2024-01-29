@@ -1,3 +1,4 @@
+import { InputSelection, InputSelectionResult, JobResult } from "./lib/schemas";
 import { SelectPathArg, ValidatePathArg } from "./main";
 
 declare global {
@@ -19,7 +20,9 @@ declare global {
   const electron: {
     selectPath: (arg?: SelectPathArg) => Promise<string|null>;
     validatePath: (arg: ValidatePathArg) => Promise<boolean>;
-    runJob: (arg: JobInfo) => Promise<JobResult>;
+    processInputSelection: (arg: InputSelection) => Promise<InputSelectionResult>;
+    processColumnDefinitionAndRunJob: (arg: InputSelection & ColumnDefinition) => Promise<JobResult>;
+    openExternal: (url: string) => Promise<void>;
   }
 
 }

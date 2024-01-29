@@ -4,6 +4,17 @@ import { CsvInputStream, JobMap } from "@/lib/business-logic";
 import { JobResult, PrivacyFormEntry, PrivacyFormEntrySchema, SurveyEntry, SurveyEntrySchema } from "@/lib/schemas";
 
 
+export function getHeadersFromCsvStream(stream: CsvInputStream) {
+  return new Promise<string[]>((resolve, reject) => {
+    stream
+      .on('error', error => reject(error))
+      .on('headers', data => resolve(data))
+      .on('data', () => { return; })
+      .on('data-invalid', () => reject(new Error('Received event data-invalid')))
+      .on('end', () => reject(new Error('end in ')));
+  });
+}
+
 export function readParsedEntriesFromCsvStream<T>(stream: CsvInputStream, schema: ZodSchema, callback: (entry: T, row: unknown) => void) {
   return new Promise<void>(resolve => {
     stream
