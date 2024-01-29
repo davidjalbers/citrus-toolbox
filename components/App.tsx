@@ -1,23 +1,35 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { DocumentChartBarIcon } from '@heroicons/react/24/solid';
 
-import { JobCreationForm } from '@/components/JobCreationForm';
-import { JobResultDialog } from '@/components/JobResultDialog';
-import { JobInfo, JobResult } from '@/lib/schemas';
+import { StartPage } from '@/pages/StartPage';
+import { PSMatcherPage } from '@/pages/PSMatcherPage';
+import { TitleDisplay } from '@/components/title-display';
+import { TitleProvider } from '@/components/title-context';
 import { cn } from '@/lib/utils';
 
+const apps = [
+  {
+    title: 'P+S Matcher',
+    description: 'Based on a file with privacy form submissions, automatically filter participants who have consented to the use of their data from a file with survey submissions.',
+    href: '/ps-matcher',
+    Icon: DocumentChartBarIcon,
+    iconStyles: 'bg-teal-600 text-teal-50',
+  },
+]
+
 export const App = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [resultData, setResultData] = useState<JobResult|null>(null);
-  const runJob = useCallback(async (info: JobInfo) => {
-    const result = await electron.runJob(info);
-    setResultData(result);
-    setIsDialogOpen(true);
-  }, [setIsDialogOpen, setResultData]);
   return (
-    <main className={cn("p-5")}>
-      <h1 className={cn("font-black text-center text-4xl mb-10")}>P+S Matcher</h1>
-      <JobCreationForm onSubmit={runJob} />
-      <JobResultDialog isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} resultData={resultData} />
-    </main>
+    <div className={cn("bg-slate-100 w-full h-full p-8 flex flex-col gap-6")}>
+      <BrowserRouter>
+        <TitleProvider>
+          <TitleDisplay />
+          <Routes>
+            <Route path="/" element={<StartPage apps={apps} />} />
+            <Route path="/ps-matcher" element={<PSMatcherPage />} />
+          </Routes>
+        </TitleProvider>
+      </BrowserRouter>
+    </div>
   );
 };
