@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UseFormReturn, useForm } from 'react-hook-form';
-import { ChevronsUpDown, Check } from 'lucide-react';
+import { ChevronsUpDown, Check, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -32,9 +32,6 @@ export const IOSelectionSchema = z.object({
 });
 export type IOSelection = z.infer<typeof IOSelectionSchema>;
 
-type IOSelectionFormProps = {
-  form: UseFormReturn
-};
 export const IOSelectionForm: ViewStepComponent<[], IOSelection> = ({ push }) => {
   const form = useForm({
     resolver: zodResolver(IOSelectionSchema),
@@ -47,6 +44,7 @@ export const IOSelectionForm: ViewStepComponent<[], IOSelection> = ({ push }) =>
     mode: 'onSubmit',
     reValidateMode: 'onBlur',
   });
+  const isLoading = form.formState.isSubmitting;
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   return (
     <Form {...form}>
@@ -176,7 +174,13 @@ export const IOSelectionForm: ViewStepComponent<[], IOSelection> = ({ push }) =>
             </FormItem>
           )}
         />
-        <Button type="submit">Continue</Button>
+        <Button type="submit" size="lg" disabled={isLoading} className={cn("flex-grow")} >
+          {isLoading && <>
+            <Loader2 className={cn("animate-spin inline-block mr-2")} />
+            Working...
+          </>}
+          {!isLoading && "Continue"}
+        </Button>
       </form>
     </Form>
   );

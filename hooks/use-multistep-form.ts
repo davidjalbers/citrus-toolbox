@@ -1,6 +1,10 @@
-import { ReactNode, createElement, useState } from "react";
+import { ReactNode, createElement, useEffect, useState } from "react";
 
-export type ViewStepComponent<DataTuple, NewData = void> = (props: { push: (data: NewData) => Promise<void>, data: DataTuple }) => ReactNode;
+export type ViewStepComponent<DataTuple, NewData = void> = (props: { 
+  data: DataTuple,
+  push: (data: NewData) => Promise<void>,
+  pop: () => void,
+}) => ReactNode;
 
 export type ViewStep<DataTuple extends unknown[], NewData = void> = {
   num: string;
@@ -31,39 +35,49 @@ export function useMultistepForm<DataTuple extends unknown[]>(addSteps: (form: M
   const [index, setIndex] = useState(0);
   const currentStep = steps.at(index);
   if (typeof currentStep !== "object") throw new Error(`Illegal state: No view step for index ${index}`);
-  const viewSteps = steps.filter(step => typeof step !== 'function') as ViewStep<unknown[], unknown>[];
+  const viewSteps: ViewStep<unknown[], unknown>[] = (steps.filter(step => typeof step !== 'function') as ViewStep<unknown[], unknown>[]);
+  const [viewStepStatus, setViewStepStatus] = useState<('completed' | 'current' | 'pending')[]>(viewSteps.map((step, idx) => {
+    if (idx == 0) return 'current';
+    return 'pending';
+  }));
   const viewStepIndex = viewSteps.indexOf(currentStep);
+  useEffect(() => {
+    setViewStepStatus(prev => {
+      prev[viewStepIndex] = 'current';
+      return [ ...prev];
+    });
+  }, [viewStepIndex]);
   return { 
-    viewSteps,
+    viewSteps: viewSteps.map((step, idx) => ({ ...step, status: viewStepStatus[idx] })),
     viewStepIndex,
     currentViewStep: createElement(currentStep.element, {
       data: data,
       push: async (step: unknown) => {
-        data.push(step);
+        setViewStepStatus(prev => {
+          prev[viewStepIndex] = 'completed';
+          return [ ...prev ];
+        });
         let idx = index;
+        data.push(step);
         ++idx;
         while (typeof steps.at(idx) === 'function') {
           data.push(await (steps.at(idx) as DataStep<unknown[], unknown>)(data));
           ++idx;
         }
-        console.log('New data after submit is', data);
-        console.log('New index after submit is', idx);
         setData(data); 
         setIndex(idx);
       },
-    }),
-    pop: () => {
-      let idx = index;
-      data.pop();
-      --idx;
-      while (typeof steps.at(idx) === 'function') {
+      pop: () => {
+        let idx = index;
         data.pop();
         --idx;
+        while (typeof steps.at(idx) === 'function') {
+          data.pop();
+          --idx;
+        }
+        setData(data);
+        setIndex(idx);
       }
-      console.log('New data after pop is', data);
-      console.log('New index after pop is', idx);
-      setData(data);
-      setIndex(idx);
-    }
+    }),
   };
 }

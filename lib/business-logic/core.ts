@@ -4,7 +4,7 @@ import * as z from "zod";
 export const PrivacyFormEntrySchema = z.object({
   identifier: z.string(),
   consent: z.boolean(),
-});
+}).passthrough();
 export type PrivacyFormEntry = z.infer<typeof PrivacyFormEntrySchema>;
 
 export const SurveyEntrySchema = z.object({
@@ -40,6 +40,7 @@ type Entry = z.infer<typeof EntrySchema>;
 type UnprocessedEntry = PrivacyFormEntry & Omit<Entry, "status">;
 
 const JobResultStatsSchema = z.object({
+  timestamp: z.date(),
   totalEntries: z.number(),
   totalUniqueIdentifiers: z.number(),
   totalDuplicates: z.number(),
@@ -52,10 +53,9 @@ const JobResultStatsSchema = z.object({
 export type JobResultStats = z.infer<typeof JobResultStatsSchema>;
 
 const JobResultSchema = z.object({
-  timestamp: z.date(),
   stats: JobResultStatsSchema,
-  privacyFormEntries: z.array(PrivacyFormEntrySchema.merge(CommentedEntrySchema)),
-  surveyEntries: z.array(SurveyEntrySchema.merge(CommentedEntrySchema)),
+  privacyFormEntries: z.array(PrivacyFormEntrySchema.merge(CommentedEntrySchema).passthrough()),
+  surveyEntries: z.array(SurveyEntrySchema.merge(CommentedEntrySchema).passthrough()),
   uniqueEntries: z.array(EntrySchema),
 });
 export type JobResult = z.infer<typeof JobResultSchema>;
@@ -69,8 +69,8 @@ export type JobArg = z.infer<typeof JobArgSchema>;
 export function executeJob(rawArg: JobArg): JobResult {
   const arg = JobArgSchema.parse(rawArg);
   const result: JobResult = {
-    timestamp: new Date(),
     stats: {
+      timestamp: new Date(),
       totalEntries: 0,
       totalUniqueIdentifiers: 0,
       totalDuplicates: 0,

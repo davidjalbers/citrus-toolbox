@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { UseFormReturn, useForm } from 'react-hook-form';
-import { ChevronsUpDown, Check } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { ChevronsUpDown, Check, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -12,25 +12,31 @@ import { ViewStepComponent } from '@/hooks/use-multistep-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { IOSelection } from './IOSelectionForm';
+import { Input } from '../ui/input';
+
+const requiredString = z.string().min(1, 'This field is required.')
 
 export const HeaderSelectionSchema = z.object({
-  privacyFormIdentifierHeader: z.string(),
-  privacyFormConsentHeader: z.string(),
-  surveyIdentifierHeader: z.string(),
+  privacyFormIdentifierHeader: requiredString,
+  privacyFormConsentHeader: requiredString,
+  privacyFormConsentValue: requiredString,
+  surveyIdentifierHeader: requiredString,
 });
 export type HeaderSelection = z.infer<typeof HeaderSelectionSchema>;
 
-export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], HeaderSelection> = ({ data, push }) => {
+export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], HeaderSelection> = ({ data, push, pop }) => {
   const form = useForm({
     resolver: zodResolver(HeaderSelectionSchema),
     defaultValues: {
-      privacyFormIdentifierHeader: data[1].privacyFormFileHeaders[0],
-      privacyFormConsentHeader: data[1].privacyFormFileHeaders[1],
-      surveyIdentifierHeader: data[1].surveyFileHeaders[0],
+      privacyFormIdentifierHeader: '',
+      privacyFormConsentHeader: '',
+      privacyFormConsentValue: '',
+      surveyIdentifierHeader: '',
     },
     mode: 'onSubmit',
     reValidateMode: 'onBlur',
   })
+  const isLoading = form.formState.isSubmitting;
   const { privacyFormFileHeaders, surveyFileHeaders } = data[1];
   const [isPopover1Open, setIsPopover1Open] = useState(false);
   const [isPopover2Open, setIsPopover2Open] = useState(false);
@@ -46,7 +52,7 @@ export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], Head
           name="privacyFormIdentifierHeader"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel className={cn("font-bold")}>Privacy Form Study Code</FormLabel>
+              <FormLabel className={cn("font-bold")}>Privacy Form Study Code Column</FormLabel>
               <Popover open={isPopover1Open} onOpenChange={setIsPopover1Open}>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -104,7 +110,7 @@ export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], Head
           name="privacyFormConsentHeader"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel className={cn("font-bold")}>Privacy Form Consent</FormLabel>
+              <FormLabel className={cn("font-bold")}>Privacy Form Consent Column</FormLabel>
               <Popover open={isPopover2Open} onOpenChange={setIsPopover2Open}>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -159,10 +165,26 @@ export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], Head
         />
       <FormField
           control={form.control}
+          name="privacyFormConsentValue"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className={cn("font-bold")}>Privacy Form Consent Value</FormLabel>
+              <FormControl>
+                  <Input {...field} spellCheck={false} placeholder='Yes, I consent'/>
+              </FormControl>
+              <FormDescription>
+                Specify the exact string to interpret as valid consent. All other values will be deemed as the participant not consenting.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      <FormField
+          control={form.control}
           name="surveyIdentifierHeader"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel className={cn("font-bold")}>Survey Study Code</FormLabel>
+              <FormLabel className={cn("font-bold")}>Survey Study Code Column</FormLabel>
               <Popover open={isPopover3Open} onOpenChange={setIsPopover3Open}>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -215,7 +237,16 @@ export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], Head
             </FormItem>
           )}
         />
-        <Button type="submit">Run job</Button>
+        <div className={cn("flex gap-2")}>
+          <Button type="button" size="lg" variant="secondary" onClick={pop}>Back</Button>
+          <Button type="submit" size="lg" disabled={isLoading} className={cn("flex-grow")} >
+            {isLoading && <>
+              <Loader2 className={cn("animate-spin inline-block mr-2")} />
+              Working...
+            </>}
+            {!isLoading && "Run job"}
+          </Button>
+        </div>
       </form>
     </Form>
   );
