@@ -7,81 +7,24 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandGroup, CommandItem } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
-import { InputSelectionResult } from '@/lib/schemas';
+import { Headers } from '@/lib/schemas';
 
-type ColumnDefinitionFormProps = {
+type HeaderSelectionFormProps = {
   form: UseFormReturn
-} & InputSelectionResult;
-export const ColumnDefinitionForm = ({ form, privacyFormFileHeaders, surveyFileHeaders }: ColumnDefinitionFormProps) => {
+} & Headers;
+export const HeaderSelectionForm = ({ form, privacyFormFileHeaders, surveyFileHeaders }: HeaderSelectionFormProps) => {
   const [isPopover1Open, setIsPopover1Open] = useState(false);
   const [isPopover2Open, setIsPopover2Open] = useState(false);
   const [isPopover3Open, setIsPopover3Open] = useState(false);
-  const [isPopover4Open, setIsPopover4Open] = useState(false);
-  const [isPopover5Open, setIsPopover5Open] = useState(false);
   return (
     <Form {...form}>
       <form className={cn("flex flex-col space-y-10")}>
+        <div className={cn("text-sm bg-yellow-100 px-4 py-2 rounded")}>
+          <strong>Note:</strong> If the columns offered here don't look right, you might have selected the wrong separator.
+        </div>
       <FormField
           control={form.control}
-          name="privacyFormIndexColumn"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel className={cn("font-bold")}>Privacy Form Index</FormLabel>
-              <Popover open={isPopover4Open} onOpenChange={setIsPopover4Open}>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn(
-                        "w-[200px] justify-between",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value
-                        ? privacyFormFileHeaders.find(sep => sep === field.value)
-                        : "Select column"}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0">
-                  <Command>
-                    <CommandGroup>
-                      {privacyFormFileHeaders.map(sep => (
-                        <CommandItem
-                          value={sep}
-                          key={sep}
-                          onSelect={() => {
-                            setIsPopover4Open(false)
-                            form.setValue("privacyFormIndexColumn", sep)
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              sep === field.value
-                                ? "opacity-100"
-                                : "opacity-0"
-                            )}
-                          />
-                          {sep}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <FormDescription>
-                Select the column that contains the index in the privacy form file.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      <FormField
-          control={form.control}
-          name="privacyFormStudyCodeColumn"
+          name="privacyFormIdentifierHeader"
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel className={cn("font-bold")}>Privacy Form Study Code</FormLabel>
@@ -92,18 +35,18 @@ export const ColumnDefinitionForm = ({ form, privacyFormFileHeaders, surveyFileH
                       variant="outline"
                       role="combobox"
                       className={cn(
-                        "w-[200px] justify-between",
+                        "w-[300px] justify-between",
                         !field.value && "text-muted-foreground"
                       )}
                     >
-                      {field.value
+                      <span className={cn("truncate")}>{field.value
                         ? privacyFormFileHeaders.find(sep => sep === field.value)
-                        : "Select column"}
+                        : "Select column"}</span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0">
+                <PopoverContent className="w-[300px] p-0">
                   <Command>
                     <CommandGroup>
                       {privacyFormFileHeaders.map(sep => (
@@ -112,7 +55,7 @@ export const ColumnDefinitionForm = ({ form, privacyFormFileHeaders, surveyFileH
                           key={sep}
                           onSelect={() => {
                             setIsPopover1Open(false)
-                            form.setValue("privacyFormStudyCodeColumn", sep)
+                            form.setValue("privacyFormIdentifierHeader", sep)
                           }}
                         >
                           <Check
@@ -123,7 +66,7 @@ export const ColumnDefinitionForm = ({ form, privacyFormFileHeaders, surveyFileH
                                 : "opacity-0"
                             )}
                           />
-                          {sep}
+                          <span>{sep}</span>
                         </CommandItem>
                       ))}
                     </CommandGroup>
@@ -139,7 +82,7 @@ export const ColumnDefinitionForm = ({ form, privacyFormFileHeaders, surveyFileH
         />
       <FormField
           control={form.control}
-          name="privacyFormConsentColumn"
+          name="privacyFormConsentHeader"
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel className={cn("font-bold")}>Privacy Form Consent</FormLabel>
@@ -150,18 +93,18 @@ export const ColumnDefinitionForm = ({ form, privacyFormFileHeaders, surveyFileH
                       variant="outline"
                       role="combobox"
                       className={cn(
-                        "w-[200px] justify-between",
+                        "w-[300px] justify-between",
                         !field.value && "text-muted-foreground"
                       )}
                     >
-                      {field.value
+                      <span className={cn("truncate")}>{field.value
                         ? privacyFormFileHeaders.find(sep => sep === field.value)
-                        : "Select column"}
+                        : "Select column"}</span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0">
+                <PopoverContent className="w-[300px] p-0">
                   <Command>
                     <CommandGroup>
                       {privacyFormFileHeaders.map(sep => (
@@ -170,7 +113,7 @@ export const ColumnDefinitionForm = ({ form, privacyFormFileHeaders, surveyFileH
                           key={sep}
                           onSelect={() => {
                             setIsPopover2Open(false)
-                            form.setValue("privacyFormConsentColumn", sep)
+                            form.setValue("privacyFormConsentHeader", sep)
                           }}
                         >
                           <Check
@@ -181,7 +124,7 @@ export const ColumnDefinitionForm = ({ form, privacyFormFileHeaders, surveyFileH
                                 : "opacity-0"
                             )}
                           />
-                          {sep}
+                          <span>{sep}</span>
                         </CommandItem>
                       ))}
                     </CommandGroup>
@@ -195,67 +138,9 @@ export const ColumnDefinitionForm = ({ form, privacyFormFileHeaders, surveyFileH
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="surveyIndexColumn"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel className={cn("font-bold")}>Survey Index</FormLabel>
-              <Popover open={isPopover5Open} onOpenChange={setIsPopover5Open}>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn(
-                        "w-[200px] justify-between",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value
-                        ? surveyFileHeaders.find(sep => sep === field.value)
-                        : "Select column"}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0">
-                  <Command>
-                    <CommandGroup>
-                      {surveyFileHeaders.map(sep => (
-                        <CommandItem
-                          value={sep}
-                          key={sep}
-                          onSelect={() => {
-                            setIsPopover5Open(false)
-                            form.setValue("surveyIndexColumn", sep)
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              sep === field.value
-                                ? "opacity-100"
-                                : "opacity-0"
-                            )}
-                          />
-                          {sep}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <FormDescription>
-                Select the column that contains the index in the survey file.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       <FormField
           control={form.control}
-          name="surveyStudyCodeColumn"
+          name="surveyIdentifierHeader"
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel className={cn("font-bold")}>Survey Study Code</FormLabel>
@@ -266,18 +151,18 @@ export const ColumnDefinitionForm = ({ form, privacyFormFileHeaders, surveyFileH
                       variant="outline"
                       role="combobox"
                       className={cn(
-                        "w-[200px] justify-between",
+                        "w-[300px] justify-between",
                         !field.value && "text-muted-foreground"
                       )}
                     >
-                      {field.value
+                      <span className={cn("truncate")}>{field.value
                         ? surveyFileHeaders.find(sep => sep === field.value)
-                        : "Select column"}
+                        : "Select column"}</span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0">
+                <PopoverContent className="w-[300px] p-0">
                   <Command>
                     <CommandGroup>
                       {surveyFileHeaders.map(sep => (
@@ -286,7 +171,7 @@ export const ColumnDefinitionForm = ({ form, privacyFormFileHeaders, surveyFileH
                           key={sep}
                           onSelect={() => {
                             setIsPopover3Open(false)
-                            form.setValue("surveyStudyCodeColumn", sep)
+                            form.setValue("surveyIdentifierHeader", sep)
                           }}
                         >
                           <Check
@@ -297,7 +182,7 @@ export const ColumnDefinitionForm = ({ form, privacyFormFileHeaders, surveyFileH
                                 : "opacity-0"
                             )}
                           />
-                          {sep}
+                          <span>{sep}</span>
                         </CommandItem>
                       ))}
                     </CommandGroup>

@@ -1,4 +1,5 @@
-import { InputSelection, InputSelectionResult, JobResult } from "./lib/schemas";
+import { JobResultStats } from "./lib/business-logic/core";
+import { IOSelection, Headers } from "./lib/schemas";
 import { SelectPathArg, ValidatePathArg } from "./main";
 
 declare global {
@@ -20,8 +21,8 @@ declare global {
   const electron: {
     selectPath: (arg?: SelectPathArg) => Promise<string|null>;
     validatePath: (arg: ValidatePathArg) => Promise<boolean>;
-    processInputSelection: (arg: InputSelection) => Promise<InputSelectionResult>;
-    processColumnDefinitionAndRunJob: (arg: InputSelection & ColumnDefinition) => Promise<JobResult>;
+    processInputSelection: (arg: IOSelection) => Promise<Headers>;
+    processColumnDefinitionAndRunJob: (arg: IOSelection & ColumnDefinition) => Promise<JobResultStats>;
     openExternal: (url: string) => Promise<void>;
   }
 

@@ -11,10 +11,10 @@ import { cn } from '@/lib/utils';
 
 const separators = [{ value: ',', label: 'Comma ,'}, { value: ';', label: 'Semicolon ;' }] as const;
 
-type InputSelectionFormProps = {
+type IOSelectionFormProps = {
   form: UseFormReturn
 };
-export const InputSelectionForm = ({ form }: InputSelectionFormProps) => {
+export const IOSelectionForm = ({ form }: IOSelectionFormProps) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   return (
     <Form {...form}>

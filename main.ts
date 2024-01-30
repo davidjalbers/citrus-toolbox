@@ -3,7 +3,7 @@ import path from 'path';
 import * as fs from 'fs/promises';
 
 import { processColumnDefinitionAndRunJobImpl, processInputSelectionImpl } from '@/lib/business-logic';
-import { ColumnDefinition, InputSelection } from '@/lib/schemas';
+import { HeaderSelection, IOSelection } from '@/lib/schemas';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -70,8 +70,8 @@ ipcMain.handle('validate-path', async (event, arg: ValidatePathArg) => {
   }
 });
 
-ipcMain.handle('process-input-selection', (event, arg: InputSelection) => processInputSelectionImpl(arg));
-ipcMain.handle('process-column-definition-and-run-job', (event, arg: InputSelection & ColumnDefinition) => processColumnDefinitionAndRunJobImpl(arg));
+ipcMain.handle('process-input-selection', (event, arg: IOSelection) => processInputSelectionImpl(arg));
+ipcMain.handle('process-column-definition-and-run-job', (event, arg: IOSelection & HeaderSelection) => processColumnDefinitionAndRunJobImpl(arg));
 
 ipcMain.handle('open-external', (event, url: string) => {
   shell.openExternal(url);

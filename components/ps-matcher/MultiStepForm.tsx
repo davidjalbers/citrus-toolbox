@@ -1,6 +1,6 @@
 import React from "react";
-import { ColumnDefinitionSchema, InputSelectionSchema } from "@/lib/schemas";
-import { InputSelectionForm } from "@/components/ps-matcher/InputSelectionForm";
+import { HeaderSelectionSchema, IOSelectionSchema } from "@/lib/schemas";
+import { IOSelectionForm } from "@/components/ps-matcher/IOSelectionForm";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Steps } from "@/components/ui/steps";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,7 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from 'lucide-react';
 import { useMultistepForm } from "../use-multistep-form";
 
-import * as z from "zod";
-import { ColumnDefinitionForm } from "./ColumnDefinitionForm";
+import { HeaderSelectionForm } from "./HeaderSelectionForm";
 import { JobResultDialog } from "./JobResultDisplay";
 
 
@@ -20,8 +19,8 @@ export function MultiStepForm() {
       name: 'Input selection', 
       backward: undefined, 
       forward: 'Continue',
-      Content: InputSelectionForm,
-      schema: InputSelectionSchema,
+      Content: IOSelectionForm,
+      schema: IOSelectionSchema,
       onForward: async (data: any) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         return await electron.processInputSelection(data);
@@ -38,11 +37,11 @@ export function MultiStepForm() {
       name: 'Column definition', 
       backward: 'Back',
       forward: 'Run job', 
-      Content: ColumnDefinitionForm,
-      schema: ColumnDefinitionSchema,
+      Content: HeaderSelectionForm,
+      schema: HeaderSelectionSchema,
       onForward: async (data: any) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        return { result: await electron.processColumnDefinitionAndRunJob(data) };
+        return { stats: await electron.processColumnDefinitionAndRunJob(data) };
       },
       defaultValues: {},
     },
