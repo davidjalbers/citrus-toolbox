@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UseFormReturn } from 'react-hook-form';
+import { UseFormReturn, useForm } from 'react-hook-form';
 import { ChevronsUpDown, Check } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -8,17 +8,36 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandGroup, CommandItem } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { Headers } from '@/lib/schemas';
+import { ViewStepComponent } from '@/hooks/use-multistep-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { IOSelection } from './IOSelectionForm';
 
-type HeaderSelectionFormProps = {
-  form: UseFormReturn
-} & Headers;
-export const HeaderSelectionForm = ({ form, privacyFormFileHeaders, surveyFileHeaders }: HeaderSelectionFormProps) => {
+export const HeaderSelectionSchema = z.object({
+  privacyFormIdentifierHeader: z.string(),
+  privacyFormConsentHeader: z.string(),
+  surveyIdentifierHeader: z.string(),
+});
+export type HeaderSelection = z.infer<typeof HeaderSelectionSchema>;
+
+export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], HeaderSelection> = ({ data, push }) => {
+  const form = useForm({
+    resolver: zodResolver(HeaderSelectionSchema),
+    defaultValues: {
+      privacyFormIdentifierHeader: data[1].privacyFormFileHeaders[0],
+      privacyFormConsentHeader: data[1].privacyFormFileHeaders[1],
+      surveyIdentifierHeader: data[1].surveyFileHeaders[0],
+    },
+    mode: 'onSubmit',
+    reValidateMode: 'onBlur',
+  })
+  const { privacyFormFileHeaders, surveyFileHeaders } = data[1];
   const [isPopover1Open, setIsPopover1Open] = useState(false);
   const [isPopover2Open, setIsPopover2Open] = useState(false);
   const [isPopover3Open, setIsPopover3Open] = useState(false);
   return (
     <Form {...form}>
-      <form className={cn("flex flex-col space-y-10")}>
+      <form onSubmit={form.handleSubmit(push)} className={cn("flex flex-col space-y-10")}>
         <div className={cn("text-sm bg-yellow-100 px-4 py-2 rounded")}>
           <strong>Note:</strong> If the columns offered here don't look right, you might have selected the wrong separator.
         </div>
@@ -196,6 +215,7 @@ export const HeaderSelectionForm = ({ form, privacyFormFileHeaders, surveyFileHe
             </FormItem>
           )}
         />
+        <Button type="submit">Run job</Button>
       </form>
     </Form>
   );

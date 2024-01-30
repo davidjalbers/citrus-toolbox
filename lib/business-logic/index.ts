@@ -1,17 +1,18 @@
-import { HeaderSelection, IOSelection, Headers } from '@/lib/schemas';
+import { Headers } from '@/lib/schemas';
 import { createJobArgFromCsv, getHeadersFromCsv, writeJobResultToCsv } from "./csv";
 import { JobResultStats, executeJob } from "./core";
+import { IOSelection } from '@/components/ps-matcher/IOSelectionForm';
+import { HeaderSelection } from '@/components/ps-matcher/HeaderSelectionForm';
 
 
 export async function processInputSelectionImpl(info: IOSelection): Promise<Headers> {
-  //console.log("processInputSelectionImpl called")
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   const privacyFormFileHeaders = await getHeadersFromCsv({ filePath: info.privacyFormFilePath, separator: info.separator });
   const surveyFileHeaders = await getHeadersFromCsv({ filePath: info.surveyFilePath, separator: info.separator });
   return { privacyFormFileHeaders, surveyFileHeaders };
 }
 
 export async function processColumnDefinitionAndRunJobImpl(info: IOSelection & HeaderSelection): Promise<JobResultStats> {
-  //console.log("processColumnDefinitionAndRunJobImpl called")
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   const arg = await createJobArgFromCsv({

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UseFormReturn } from 'react-hook-form';
+import { UseFormReturn, useForm } from 'react-hook-form';
 import { ChevronsUpDown, Check } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -8,17 +8,49 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandGroup, CommandItem } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
+import { ViewStepComponent } from '@/hooks/use-multistep-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 
+
+const filePath = z.string()
+.trim()
+.min(1, 'This field is required.')
+.refine((value) => electron.validatePath({ path: value }), 'This file either does not exist or is not readable.')
+.refine((value) => value.endsWith('.csv'), 'Only CSV files are supported.' )
+const directoryPath = z.string()
+.trim()
+.min(1, 'This field is required.')
+.refine((value) => electron.validatePath({ path: value, type: 'directory', access: 'readWrite' }), 'This directory either does not exist or is not writable.');
 const separators = [{ value: ',', label: 'Comma ,'}, { value: ';', label: 'Semicolon ;' }] as const;
+
+export const IOSelectionSchema = z.object({
+  separator: z.string()/*z.enum([';', ','])*/,
+  privacyFormFilePath: filePath,
+  surveyFilePath: filePath,
+  outputDirectoryPath: directoryPath,
+});
+export type IOSelection = z.infer<typeof IOSelectionSchema>;
 
 type IOSelectionFormProps = {
   form: UseFormReturn
 };
-export const IOSelectionForm = ({ form }: IOSelectionFormProps) => {
+export const IOSelectionForm: ViewStepComponent<[], IOSelection> = ({ push }) => {
+  const form = useForm({
+    resolver: zodResolver(IOSelectionSchema),
+    defaultValues: {
+      separator: ',',
+      privacyFormFilePath: import.meta.env.VITE_DEFAULT_PRIVACY_FORM_FILE_PATH || '',
+      surveyFilePath: import.meta.env.VITE_DEFAULT_SURVEY_FILE_PATH || '',
+      outputDirectoryPath: import.meta.env.VITE_DEFAULT_OUTPUT_DIR_PATH || '',
+    },
+    mode: 'onSubmit',
+    reValidateMode: 'onBlur',
+  });
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   return (
     <Form {...form}>
-      <form className={cn("flex flex-col space-y-10")}>
+      <form onSubmit={form.handleSubmit(push)} className={cn("flex flex-col space-y-10")}>
       <FormField
           control={form.control}
           name="separator"
@@ -144,6 +176,7 @@ export const IOSelectionForm = ({ form }: IOSelectionFormProps) => {
             </FormItem>
           )}
         />
+        <Button type="submit">Continue</Button>
       </form>
     </Form>
   );
