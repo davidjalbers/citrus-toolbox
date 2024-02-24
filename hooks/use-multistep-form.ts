@@ -74,6 +74,10 @@ export function useMultistepForm<DataTuple extends unknown[]>(addSteps: (form: M
         }
       },
       pop: () => {
+        setViewStepStatus(prev => {
+          prev[viewStepIndex] = 'pending';
+          return [ ...prev ];
+        });
         let idx = index;
         data.pop();
         --idx;
