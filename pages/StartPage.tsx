@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 
 import { HeroIcon, cn } from '@/lib/utils';
 import { useTitleContext } from '../components/title-context';
+import { Link } from 'react-router-dom';
 
 type StartPageProps = {
   apps: {
@@ -52,11 +53,11 @@ export function StartPage({ apps }: StartPageProps) {
           </div>
           <div className="mt-8">
             <h3 className="text-base font-semibold leading-6 text-gray-900">
-              <a href={app.href} className="focus:outline-none">
+              <Link to={app.href} className="focus:outline-none">
                 {/* Extend touch target to entire panel */}
                 <span className="absolute inset-0" aria-hidden="true" />
                 {app.title}
-              </a>
+              </Link>
             </h3>
             <p className="mt-2 text-sm text-gray-500">{app.description}</p>
           </div>
