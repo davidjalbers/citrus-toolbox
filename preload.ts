@@ -2,7 +2,8 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 import { contextBridge, ipcRenderer } from 'electron';
 import { SelectPathArg, ValidatePathArg } from '@/main';
-import { HeaderSelection, IOSelection } from '@/lib/schemas';
+import { IOSelection } from './components/ps-matcher/IOSelectionForm';
+import { HeaderSelection } from './components/ps-matcher/HeaderSelectionForm';
 
 contextBridge.exposeInMainWorld('electron', {
   selectPath: (arg: SelectPathArg) => ipcRenderer.invoke('select-path', arg),

@@ -6,7 +6,8 @@ import {
   processColumnDefinitionAndRunJobImpl,
   processInputSelectionImpl,
 } from '@/lib/business-logic';
-import { HeaderSelection, IOSelection } from '@/lib/schemas';
+import { IOSelection } from './components/ps-matcher/IOSelectionForm';
+import { HeaderSelection } from './components/ps-matcher/HeaderSelectionForm';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
