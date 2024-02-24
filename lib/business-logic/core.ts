@@ -57,12 +57,8 @@ export type JobResultStats = z.infer<typeof JobResultStatsSchema>;
 
 const JobResultSchema = z.object({
   stats: JobResultStatsSchema,
-  privacyFormEntries: z.array(
-    PrivacyFormEntrySchema.merge(CommentedEntrySchema).passthrough(),
-  ),
-  surveyEntries: z.array(
-    SurveyEntrySchema.merge(CommentedEntrySchema).passthrough(),
-  ),
+  privacyFormEntries: z.array(PrivacyFormEntrySchema.merge(CommentedEntrySchema).passthrough()),
+  surveyEntries: z.array(SurveyEntrySchema.merge(CommentedEntrySchema).passthrough()),
   uniqueEntries: z.array(EntrySchema),
 });
 export type JobResult = z.infer<typeof JobResultSchema>;

@@ -15,9 +15,7 @@ declare global {
     selectPath: (arg?: SelectPathArg) => Promise<string | null>;
     validatePath: (arg: ValidatePathArg) => Promise<boolean>;
     processInputSelection: (arg: IOSelection) => Promise<Headers>;
-    processColumnDefinitionAndRunJob: (
-      arg: IOSelection & ColumnDefinition,
-    ) => Promise<JobResultStats>;
+    processColumnDefinitionAndRunJob: (arg: IOSelection & ColumnDefinition) => Promise<JobResultStats>;
     openExternal: (url: string) => Promise<void>;
   };
 }

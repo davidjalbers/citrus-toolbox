@@ -3,7 +3,7 @@ import { defineConfig, mergeConfig } from 'vite';
 import { getBuildConfig, getBuildDefine, external, pluginHotRestart, alias } from './vite.base.config';
 
 // https://vitejs.dev/config
-export default defineConfig((env) => {
+export default defineConfig(env => {
   const forgeEnv = env as ConfigEnv<'build'>;
   const { forgeConfigSelf } = forgeEnv;
   const define = getBuildDefine(forgeEnv);

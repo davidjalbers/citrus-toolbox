@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import { pluginExposeRenderer, alias } from './vite.base.config';
 
 // https://vitejs.dev/config
-export default defineConfig((env) => {
+export default defineConfig(env => {
   const forgeEnv = env as ConfigEnv<'renderer'>;
   const { root, mode, forgeConfigSelf } = forgeEnv;
   const name = forgeConfigSelf.name ?? '';

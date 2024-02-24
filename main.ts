@@ -2,10 +2,7 @@ import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import path from 'path';
 import * as fs from 'fs/promises';
 
-import {
-  processColumnDefinitionAndRunJobImpl,
-  processInputSelectionImpl,
-} from '@/lib/business-logic';
+import { processColumnDefinitionAndRunJobImpl, processInputSelectionImpl } from '@/lib/business-logic';
 import { IOSelection } from './components/ps-matcher/IOSelectionForm';
 import { HeaderSelection } from './components/ps-matcher/HeaderSelectionForm';
 
@@ -32,9 +29,7 @@ app.on('ready', () => {
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
-    mainWindow.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
-    );
+    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
   // Open the DevTools.
@@ -47,11 +42,9 @@ export type SelectPathArg = {
 ipcMain.handle('select-path', async (event, arg: SelectPathArg = {}) => {
   const { type = 'file' } = arg;
   const result = await dialog.showOpenDialog({
-    properties:
-      type === 'file' ? ['openFile'] : ['openDirectory', 'createDirectory'],
+    properties: type === 'file' ? ['openFile'] : ['openDirectory', 'createDirectory'],
   });
-  if (!result.canceled && result.filePaths.length > 0)
-    return result.filePaths[0];
+  if (!result.canceled && result.filePaths.length > 0) return result.filePaths[0];
   return null;
 });
 
@@ -62,10 +55,7 @@ export type ValidatePathArg = {
 };
 ipcMain.handle('validate-path', async (event, arg: ValidatePathArg) => {
   const { type = 'file', access = 'read', path } = arg;
-  const constants =
-    access === 'read'
-      ? fs.constants.R_OK
-      : fs.constants.R_OK | fs.constants.W_OK;
+  const constants = access === 'read' ? fs.constants.R_OK : fs.constants.R_OK | fs.constants.W_OK;
   try {
     await fs.access(path, constants);
     const stat = await fs.stat(path);
@@ -80,13 +70,9 @@ ipcMain.handle('validate-path', async (event, arg: ValidatePathArg) => {
   }
 });
 
-ipcMain.handle('process-input-selection', (event, arg: IOSelection) =>
-  processInputSelectionImpl(arg),
-);
-ipcMain.handle(
-  'process-column-definition-and-run-job',
-  (event, arg: IOSelection & HeaderSelection) =>
-    processColumnDefinitionAndRunJobImpl(arg),
+ipcMain.handle('process-input-selection', (event, arg: IOSelection) => processInputSelectionImpl(arg));
+ipcMain.handle('process-column-definition-and-run-job', (event, arg: IOSelection & HeaderSelection) =>
+  processColumnDefinitionAndRunJobImpl(arg),
 );
 
 ipcMain.handle('open-external', (event, url: string) => {

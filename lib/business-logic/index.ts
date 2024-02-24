@@ -1,16 +1,10 @@
 import { Headers } from '@/lib/schemas';
-import {
-  createJobArgFromCsv,
-  getHeadersFromCsv,
-  writeJobResultToCsv,
-} from './csv';
+import { createJobArgFromCsv, getHeadersFromCsv, writeJobResultToCsv } from './csv';
 import { JobResultStats, executeJob } from './core';
 import { IOSelection } from '@/components/ps-matcher/IOSelectionForm';
 import { HeaderSelection } from '@/components/ps-matcher/HeaderSelectionForm';
 
-export async function processInputSelectionImpl(
-  info: IOSelection,
-): Promise<Headers> {
+export async function processInputSelectionImpl(info: IOSelection): Promise<Headers> {
   await new Promise(resolve => setTimeout(resolve, 500));
   const privacyFormFileHeaders = await getHeadersFromCsv({
     filePath: info.privacyFormFilePath,
@@ -30,8 +24,7 @@ export async function processColumnDefinitionAndRunJobImpl(
 
   const arg = await createJobArgFromCsv({
     ...info,
-    privacyFormConsentTransformer: (value: string) =>
-      value === info.privacyFormConsentValue,
+    privacyFormConsentTransformer: (value: string) => value === info.privacyFormConsentValue,
   });
 
   const result = executeJob(arg);

@@ -13,28 +13,17 @@ export type ViewStep<DataTuple extends unknown[], NewData = void> = {
   element: ViewStepComponent<DataTuple, NewData>;
 };
 
-export type DataStep<DataTuple, NewData> = (
-  data: DataTuple,
-) => NewData | Promise<NewData>;
+export type DataStep<DataTuple, NewData> = (data: DataTuple) => NewData | Promise<NewData>;
 
 export class MultistepForm<DataTuple extends unknown[]> {
-  public steps: (
-    | ViewStep<unknown[], unknown>
-    | DataStep<unknown[], unknown>
-  )[] = [];
+  public steps: (ViewStep<unknown[], unknown> | DataStep<unknown[], unknown>)[] = [];
 
-  addViewStep = <NewData = void>(step: ViewStep<DataTuple, NewData>) =>
-    this.addStep<NewData>(step);
+  addViewStep = <NewData = void>(step: ViewStep<DataTuple, NewData>) => this.addStep<NewData>(step);
 
-  addDataStep = <NewData>(step: DataStep<DataTuple, NewData>) =>
-    this.addStep<NewData>(step);
+  addDataStep = <NewData>(step: DataStep<DataTuple, NewData>) => this.addStep<NewData>(step);
 
-  private addStep<NewData>(
-    step: ViewStep<DataTuple, NewData> | DataStep<DataTuple, NewData>,
-  ) {
-    this.steps.push(
-      step as ViewStep<unknown[], unknown> | DataStep<unknown[], unknown>,
-    );
+  private addStep<NewData>(step: ViewStep<DataTuple, NewData> | DataStep<DataTuple, NewData>) {
+    this.steps.push(step as ViewStep<unknown[], unknown> | DataStep<unknown[], unknown>);
     return this as unknown as MultistepForm<[...DataTuple, NewData]>;
   }
 }
@@ -47,14 +36,12 @@ export function useMultistepForm<DataTuple extends unknown[]>(
   const steps = form.steps;
   const [index, setIndex] = useState(0);
   const currentStep = steps.at(index);
-  if (typeof currentStep !== 'object')
-    throw new Error(`Illegal state: No view step for index ${index}`);
-  const viewSteps: ViewStep<unknown[], unknown>[] = steps.filter(
-    step => typeof step !== 'function',
-  ) as ViewStep<unknown[], unknown>[];
-  const [viewStepStatus, setViewStepStatus] = useState<
-    ('completed' | 'current' | 'pending')[]
-  >(
+  if (typeof currentStep !== 'object') throw new Error(`Illegal state: No view step for index ${index}`);
+  const viewSteps: ViewStep<unknown[], unknown>[] = steps.filter(step => typeof step !== 'function') as ViewStep<
+    unknown[],
+    unknown
+  >[];
+  const [viewStepStatus, setViewStepStatus] = useState<('completed' | 'current' | 'pending')[]>(
     viewSteps.map((step, idx) => {
       if (idx == 0) return 'current';
       return 'pending';
@@ -86,9 +73,7 @@ export function useMultistepForm<DataTuple extends unknown[]>(
           data.push(step);
           ++idx;
           while (typeof steps.at(idx) === 'function') {
-            data.push(
-              await (steps.at(idx) as DataStep<unknown[], unknown>)(data),
-            );
+            data.push(await (steps.at(idx) as DataStep<unknown[], unknown>)(data));
             ++idx;
           }
           setData(data);

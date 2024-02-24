@@ -46,12 +46,7 @@ export function StartPage({ apps }: StartPageProps) {
           )}
         >
           <div>
-            <span
-              className={cn(
-                app.iconStyles,
-                'inline-flex rounded-lg p-3 ring-4 ring-white',
-              )}
-            >
+            <span className={cn(app.iconStyles, 'inline-flex rounded-lg p-3 ring-4 ring-white')}>
               <app.Icon className="h-8 w-8" aria-hidden="true" />
             </span>
           </div>

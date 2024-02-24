@@ -12,11 +12,7 @@ interface TitleProviderProps {
 export const TitleProvider: React.FC<TitleProviderProps> = ({ children }) => {
   const [route, setRoute] = useState('');
 
-  return (
-    <TitleContext.Provider value={{ title: route, setTitle: setRoute }}>
-      {children}
-    </TitleContext.Provider>
-  );
+  return <TitleContext.Provider value={{ title: route, setTitle: setRoute }}>{children}</TitleContext.Provider>;
 };
 
 export const useTitleContext = (): TitleContextProps => {

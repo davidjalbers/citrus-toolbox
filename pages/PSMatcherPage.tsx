@@ -1,12 +1,7 @@
 import React, { useEffect } from 'react';
 
 import { useTitleContext } from '@/components/title-context';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Steps } from '@/components/ui/steps';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -32,9 +27,7 @@ export function PSMatcherPage() {
         name: 'Column definition',
         element: HeaderSelectionForm,
       })
-      .addDataStep(steps =>
-        electron.processColumnDefinitionAndRunJob({ ...steps[0], ...steps[2] }),
-      )
+      .addDataStep(steps => electron.processColumnDefinitionAndRunJob({ ...steps[0], ...steps[2] }))
       .addViewStep({
         num: '03',
         name: 'Results',
@@ -48,8 +41,7 @@ export function PSMatcherPage() {
         <CardHeader className={cn('p-0')}>
           <Steps
             steps={viewSteps.map(step => {
-              if (step.name == 'Results' && viewStepIndex == 2)
-                return { ...step, status: 'completed' };
+              if (step.name == 'Results' && viewStepIndex == 2) return { ...step, status: 'completed' };
               return step;
             })}
             className={cn('border-none')}
@@ -60,11 +52,7 @@ export function PSMatcherPage() {
           <Button
             className={cn('text-muted-foreground mt-6')}
             variant="link"
-            onClick={() =>
-              electron.openExternal(
-                'https://github.com/davidjalbers/citrus-toolbox/issues/new',
-              )
-            }
+            onClick={() => electron.openExternal('https://github.com/davidjalbers/citrus-toolbox/issues/new')}
           >
             Report an issue
           </Button>

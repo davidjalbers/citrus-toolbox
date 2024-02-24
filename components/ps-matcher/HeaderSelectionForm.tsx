@@ -3,20 +3,8 @@ import { useForm } from 'react-hook-form';
 import { ChevronsUpDown, Check, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandGroup, CommandItem } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { Headers } from '@/lib/schemas';
@@ -36,10 +24,11 @@ export const HeaderSelectionSchema = z.object({
 });
 export type HeaderSelection = z.infer<typeof HeaderSelectionSchema>;
 
-export const HeaderSelectionForm: ViewStepComponent<
-  [IOSelection, Headers],
-  HeaderSelection
-> = ({ data, push, pop }) => {
+export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], HeaderSelection> = ({
+  data,
+  push,
+  pop,
+}) => {
   const form = useForm({
     resolver: zodResolver(HeaderSelectionSchema),
     defaultValues: {
@@ -58,39 +47,27 @@ export const HeaderSelectionForm: ViewStepComponent<
   const [isPopover3Open, setIsPopover3Open] = useState(false);
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(push)}
-        className={cn('flex flex-col space-y-10')}
-      >
+      <form onSubmit={form.handleSubmit(push)} className={cn('flex flex-col space-y-10')}>
         <div className={cn('text-sm bg-yellow-100 px-4 py-2 rounded')}>
-          <strong>Note:</strong> If the columns offered here don't look right,
-          you might have selected the wrong separator.
+          <strong>Note:</strong> If the columns offered here don't look right, you might have selected the wrong
+          separator.
         </div>
         <FormField
           control={form.control}
           name="privacyFormIdentifierHeader"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel className={cn('font-bold')}>
-                Privacy Form Study Code Column
-              </FormLabel>
+              <FormLabel className={cn('font-bold')}>Privacy Form Study Code Column</FormLabel>
               <Popover open={isPopover1Open} onOpenChange={setIsPopover1Open}>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
                       variant="outline"
                       role="combobox"
-                      className={cn(
-                        'w-[300px] justify-between',
-                        !field.value && 'text-muted-foreground',
-                      )}
+                      className={cn('w-[300px] justify-between', !field.value && 'text-muted-foreground')}
                     >
                       <span className={cn('truncate')}>
-                        {field.value
-                          ? privacyFormFileHeaders.find(
-                              sep => sep === field.value,
-                            )
-                          : 'Select column'}
+                        {field.value ? privacyFormFileHeaders.find(sep => sep === field.value) : 'Select column'}
                       </span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -108,12 +85,7 @@ export const HeaderSelectionForm: ViewStepComponent<
                             form.setValue('privacyFormIdentifierHeader', sep);
                           }}
                         >
-                          <Check
-                            className={cn(
-                              'mr-2 h-4 w-4',
-                              sep === field.value ? 'opacity-100' : 'opacity-0',
-                            )}
-                          />
+                          <Check className={cn('mr-2 h-4 w-4', sep === field.value ? 'opacity-100' : 'opacity-0')} />
                           <span>{sep}</span>
                         </CommandItem>
                       ))}
@@ -122,8 +94,7 @@ export const HeaderSelectionForm: ViewStepComponent<
                 </PopoverContent>
               </Popover>
               <FormDescription>
-                Select the column that contains the study code in the privacy
-                form file.
+                Select the column that contains the study code in the privacy form file.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -134,26 +105,17 @@ export const HeaderSelectionForm: ViewStepComponent<
           name="privacyFormConsentHeader"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel className={cn('font-bold')}>
-                Privacy Form Consent Column
-              </FormLabel>
+              <FormLabel className={cn('font-bold')}>Privacy Form Consent Column</FormLabel>
               <Popover open={isPopover2Open} onOpenChange={setIsPopover2Open}>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
                       variant="outline"
                       role="combobox"
-                      className={cn(
-                        'w-[300px] justify-between',
-                        !field.value && 'text-muted-foreground',
-                      )}
+                      className={cn('w-[300px] justify-between', !field.value && 'text-muted-foreground')}
                     >
                       <span className={cn('truncate')}>
-                        {field.value
-                          ? privacyFormFileHeaders.find(
-                              sep => sep === field.value,
-                            )
-                          : 'Select column'}
+                        {field.value ? privacyFormFileHeaders.find(sep => sep === field.value) : 'Select column'}
                       </span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -171,12 +133,7 @@ export const HeaderSelectionForm: ViewStepComponent<
                             form.setValue('privacyFormConsentHeader', sep);
                           }}
                         >
-                          <Check
-                            className={cn(
-                              'mr-2 h-4 w-4',
-                              sep === field.value ? 'opacity-100' : 'opacity-0',
-                            )}
-                          />
+                          <Check className={cn('mr-2 h-4 w-4', sep === field.value ? 'opacity-100' : 'opacity-0')} />
                           <span>{sep}</span>
                         </CommandItem>
                       ))}
@@ -184,10 +141,7 @@ export const HeaderSelectionForm: ViewStepComponent<
                   </Command>
                 </PopoverContent>
               </Popover>
-              <FormDescription>
-                Select the column that contains the consent in the privacy form
-                file.
-              </FormDescription>
+              <FormDescription>Select the column that contains the consent in the privacy form file.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -197,19 +151,13 @@ export const HeaderSelectionForm: ViewStepComponent<
           name="privacyFormConsentValue"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className={cn('font-bold')}>
-                Privacy Form Consent Value
-              </FormLabel>
+              <FormLabel className={cn('font-bold')}>Privacy Form Consent Value</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  spellCheck={false}
-                  placeholder="Yes, I consent"
-                />
+                <Input {...field} spellCheck={false} placeholder="Yes, I consent" />
               </FormControl>
               <FormDescription>
-                Specify the exact string to interpret as valid consent. All
-                other values will be deemed as the participant not consenting.
+                Specify the exact string to interpret as valid consent. All other values will be deemed as the
+                participant not consenting.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -220,24 +168,17 @@ export const HeaderSelectionForm: ViewStepComponent<
           name="surveyIdentifierHeader"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel className={cn('font-bold')}>
-                Survey Study Code Column
-              </FormLabel>
+              <FormLabel className={cn('font-bold')}>Survey Study Code Column</FormLabel>
               <Popover open={isPopover3Open} onOpenChange={setIsPopover3Open}>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
                       variant="outline"
                       role="combobox"
-                      className={cn(
-                        'w-[300px] justify-between',
-                        !field.value && 'text-muted-foreground',
-                      )}
+                      className={cn('w-[300px] justify-between', !field.value && 'text-muted-foreground')}
                     >
                       <span className={cn('truncate')}>
-                        {field.value
-                          ? surveyFileHeaders.find(sep => sep === field.value)
-                          : 'Select column'}
+                        {field.value ? surveyFileHeaders.find(sep => sep === field.value) : 'Select column'}
                       </span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -255,12 +196,7 @@ export const HeaderSelectionForm: ViewStepComponent<
                             form.setValue('surveyIdentifierHeader', sep);
                           }}
                         >
-                          <Check
-                            className={cn(
-                              'mr-2 h-4 w-4',
-                              sep === field.value ? 'opacity-100' : 'opacity-0',
-                            )}
-                          />
+                          <Check className={cn('mr-2 h-4 w-4', sep === field.value ? 'opacity-100' : 'opacity-0')} />
                           <span>{sep}</span>
                         </CommandItem>
                       ))}
@@ -268,10 +204,7 @@ export const HeaderSelectionForm: ViewStepComponent<
                   </Command>
                 </PopoverContent>
               </Popover>
-              <FormDescription>
-                Select the column that contains the study code in the survey
-                file.
-              </FormDescription>
+              <FormDescription>Select the column that contains the study code in the survey file.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -280,12 +213,7 @@ export const HeaderSelectionForm: ViewStepComponent<
           <Button type="button" size="lg" variant="secondary" onClick={pop}>
             Back
           </Button>
-          <Button
-            type="submit"
-            size="lg"
-            disabled={isLoading}
-            className={cn('flex-grow')}
-          >
+          <Button type="submit" size="lg" disabled={isLoading} className={cn('flex-grow')}>
             {isLoading && (
               <>
                 <Loader2 className={cn('animate-spin inline-block mr-2')} />
