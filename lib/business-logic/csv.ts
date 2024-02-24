@@ -12,8 +12,8 @@ export async function getHeadersFromCsv(arg: { filePath: string, separator: stri
       .on('error', error => reject(error))
       .on('headers', data => resolve(data))
       .on('data', () => { return; })
-      .on('data-invalid', () => reject(new Error('Received event data-invalid')))
-      .on('end', () => reject(new Error('Received event end before headers')));
+      .on('data-invalid', () => reject(new Error('Received event "data-invalid"')))
+      .on('end', () => reject(new Error('Received event "end" before "headers"')));
   });
   readStream.close();
   csvStream.destroy();
@@ -31,8 +31,8 @@ export async function createJobArgFromCsv(arg: {
 }): Promise<JobArg> {
   const { privacyFormFilePath, privacyFormIdentifierHeader, privacyFormConsentHeader, privacyFormConsentTransformer, surveyFilePath, surveyIdentifierHeader, separator } = arg;
   const privacyFormHeaderTransformer: csv.ParserHeaderTransformFunction = headers => {
-    if (!headers.includes(privacyFormIdentifierHeader)) throw new Error(`Column ${privacyFormIdentifierHeader} not found in privacy form file`);
-    if (!headers.includes(privacyFormConsentHeader)) throw new Error(`Column ${privacyFormConsentHeader} not found in privacy form file`);
+    if (!headers.includes(privacyFormIdentifierHeader)) throw new Error(`Column "${privacyFormIdentifierHeader}" not found in privacy form file`);
+    if (!headers.includes(privacyFormConsentHeader)) throw new Error(`Column "${privacyFormConsentHeader}" not found in privacy form file`);
     return headers.map(header => {
       if (header === privacyFormIdentifierHeader) return 'identifier';
       if (header === privacyFormConsentHeader) return 'consent';
@@ -40,7 +40,7 @@ export async function createJobArgFromCsv(arg: {
     });
   }
   const surveyHeaderTransformer: csv.ParserHeaderTransformFunction = headers => {
-    if (!headers.includes(surveyIdentifierHeader)) throw new Error(`Column ${surveyIdentifierHeader} not found in survey file`);
+    if (!headers.includes(surveyIdentifierHeader)) throw new Error(`Column "${surveyIdentifierHeader}" not found in survey file`);
     return headers.map(header => {
       if (header === surveyIdentifierHeader) return 'identifier';
       return header;
@@ -57,7 +57,7 @@ export async function createJobArgFromCsv(arg: {
         const entry = PrivacyFormEntrySchema.parse({ ...data, consent: privacyFormConsentTransformer(data.consent) });
         privacyFormEntries.push(entry);
        })
-      .on('data-invalid', () => reject(new Error('Received event data-invalid')))
+      .on('data-invalid', () => reject(new Error('Received event "data-invalid"')))
       .on('end', () => resolve());
   });
   csvPrivacyForm.destroy();
@@ -73,7 +73,7 @@ export async function createJobArgFromCsv(arg: {
         const entry = SurveyEntrySchema.parse(data);
         surveyEntries.push(entry);
        })
-      .on('data-invalid', () => reject(new Error('Received event data-invalid')))
+      .on('data-invalid', () => reject(new Error('Received event "data-invalid"')))
       .on('end', () => resolve());
   });
   csvSurvey.destroy();
