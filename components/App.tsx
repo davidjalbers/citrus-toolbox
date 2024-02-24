@@ -7,6 +7,7 @@ import { PSMatcherPage } from '@/pages/PSMatcherPage';
 import { TitleDisplay } from '@/components/title-display';
 import { TitleProvider } from '@/components/title-context';
 import { cn } from '@/lib/utils';
+import { ErrorBoundary } from './ErrorBoundary';
 
 const apps = [
   {
@@ -24,10 +25,12 @@ export const App = () => {
       <BrowserRouter>
         <TitleProvider>
           <TitleDisplay />
-          <Routes>
-            <Route path="/" element={<StartPage apps={apps} />} />
-            <Route path="/ps-matcher" element={<PSMatcherPage />} />
-          </Routes>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<StartPage apps={apps} />} />
+              <Route path="/ps-matcher" element={<PSMatcherPage />} />
+            </Routes>
+          </ErrorBoundary>
         </TitleProvider>
       </BrowserRouter>
     </div>

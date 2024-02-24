@@ -1,4 +1,5 @@
 import { ReactNode, createElement, useEffect, useState } from "react";
+import { useErrorBoundary } from "react-error-boundary";
 
 export type ViewStepComponent<DataTuple, NewData = void> = (props: { 
   data: DataTuple,
@@ -47,25 +48,30 @@ export function useMultistepForm<DataTuple extends unknown[]>(addSteps: (form: M
       return [ ...prev];
     });
   }, [viewStepIndex]);
+  const { showBoundary } = useErrorBoundary();
   return { 
     viewSteps: viewSteps.map((step, idx) => ({ ...step, status: viewStepStatus[idx] })),
     viewStepIndex,
     currentViewStep: createElement(currentStep.element, {
       data: data,
       push: async (step: unknown) => {
-        setViewStepStatus(prev => {
-          prev[viewStepIndex] = 'completed';
-          return [ ...prev ];
-        });
-        let idx = index;
-        data.push(step);
-        ++idx;
-        while (typeof steps.at(idx) === 'function') {
-          data.push(await (steps.at(idx) as DataStep<unknown[], unknown>)(data));
+        try {
+          setViewStepStatus(prev => {
+            prev[viewStepIndex] = 'completed';
+            return [ ...prev ];
+          });
+          let idx = index;
+          data.push(step);
           ++idx;
+          while (typeof steps.at(idx) === 'function') {
+            data.push(await (steps.at(idx) as DataStep<unknown[], unknown>)(data));
+            ++idx;
+          }
+          setData(data); 
+          setIndex(idx);
+        } catch (error) {
+          showBoundary(error);
         }
-        setData(data); 
-        setIndex(idx);
       },
       pop: () => {
         let idx = index;
