@@ -10,6 +10,8 @@ import { useMultistepForm } from '@/hooks/use-multistep-form';
 import { IOSelectionForm } from '@/components/ps-matcher/IOSelectionForm';
 import { HeaderSelectionForm } from '@/components/ps-matcher/HeaderSelectionForm';
 
+import { author } from '@/package.json';
+
 export function PSMatcherPage() {
   const { setTitle } = useTitleContext();
   useEffect(() => setTitle('P+S Matcher'), []);
@@ -52,7 +54,7 @@ export function PSMatcherPage() {
           <Button
             className={cn('text-muted-foreground mt-6')}
             variant="link"
-            onClick={() => electron.openExternal('https://github.com/davidjalbers/citrus-toolbox/issues/new')}
+            onClick={() => electron.openExternal(`mailto:${author.email}?subject=P%2BS%20Matcher%20Issue%20Report&body=Please%20describe%20the%20issue%20you%20are%20experiencing%20below.`)}
           >
             Report an issue
           </Button>
