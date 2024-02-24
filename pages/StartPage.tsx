@@ -1,27 +1,27 @@
 import React, { useEffect } from 'react';
 
-import { HeroIcon, cn } from '@/lib/utils'
+import { HeroIcon, cn } from '@/lib/utils';
 import { useTitleContext } from '../components/title-context';
 
 type StartPageProps = {
   apps: {
-    title: string,
-    description: string,
-    href: string,
-    Icon: HeroIcon,
-    iconStyles: string,
-  }[],
+    title: string;
+    description: string;
+    href: string;
+    Icon: HeroIcon;
+    iconStyles: string;
+  }[];
 };
 
 export function StartPage({ apps }: StartPageProps) {
   const { setTitle } = useTitleContext();
   useEffect(() => setTitle('Select an app'), []);
   return (
-    <main 
+    <main
       className={cn(
         'divide-y divide-gray-200 rounded-lg',
         //'sm:grid sm:grid-cols-2 sm:gap-px sm:divide-y-0', // grid for a greater number of apps
-        'shadow' // careful: with grid, shadow only works as intended with an even number of apps
+        'shadow', // careful: with grid, shadow only works as intended with an even number of apps
       )}
     >
       {apps.map((app, idx) => (
@@ -42,11 +42,16 @@ export function StartPage({ apps }: StartPageProps) {
             // idx == 1 && 'sm:rounded-tr-lg',
             // idx == apps.length - 2 && 'sm:rounded-bl-lg',
             // idx == apps.length - 1 && 'rounded-bl-lg rounded-br-lg sm:rounded-bl-none',
-            'group relative bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500'
+            'group relative bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500',
           )}
         >
           <div>
-            <span className={cn(app.iconStyles, 'inline-flex rounded-lg p-3 ring-4 ring-white')}>
+            <span
+              className={cn(
+                app.iconStyles,
+                'inline-flex rounded-lg p-3 ring-4 ring-white',
+              )}
+            >
               <app.Icon className="h-8 w-8" aria-hidden="true" />
             </span>
           </div>
@@ -58,9 +63,7 @@ export function StartPage({ apps }: StartPageProps) {
                 {app.title}
               </a>
             </h3>
-            <p className="mt-2 text-sm text-gray-500">
-              {app.description}
-            </p>
+            <p className="mt-2 text-sm text-gray-500">{app.description}</p>
           </div>
           <span
             className="pointer-events-none absolute right-6 top-6 text-gray-300 group-hover:text-gray-400"
@@ -73,5 +76,5 @@ export function StartPage({ apps }: StartPageProps) {
         </div>
       ))}
     </main>
-  )
+  );
 }

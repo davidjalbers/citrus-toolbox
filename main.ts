@@ -2,7 +2,10 @@ import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import path from 'path';
 import * as fs from 'fs/promises';
 
-import { processColumnDefinitionAndRunJobImpl, processInputSelectionImpl } from '@/lib/business-logic';
+import {
+  processColumnDefinitionAndRunJobImpl,
+  processInputSelectionImpl,
+} from '@/lib/business-logic';
 import { HeaderSelection, IOSelection } from '@/lib/schemas';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -20,7 +23,7 @@ app.on('ready', () => {
     maximizable: false,
     fullscreenable: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 
@@ -28,7 +31,9 @@ app.on('ready', () => {
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
-    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+    mainWindow.loadFile(
+      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
+    );
   }
 
   // Open the DevTools.
@@ -36,12 +41,13 @@ app.on('ready', () => {
 });
 
 export type SelectPathArg = {
-  type?: 'file' | 'directory',
+  type?: 'file' | 'directory';
 };
 ipcMain.handle('select-path', async (event, arg: SelectPathArg = {}) => {
   const { type = 'file' } = arg;
   const result = await dialog.showOpenDialog({
-    properties: type === 'file' ? ['openFile'] : ['openDirectory', 'createDirectory']
+    properties:
+      type === 'file' ? ['openFile'] : ['openDirectory', 'createDirectory'],
   });
   if (!result.canceled && result.filePaths.length > 0)
     return result.filePaths[0];
@@ -49,13 +55,16 @@ ipcMain.handle('select-path', async (event, arg: SelectPathArg = {}) => {
 });
 
 export type ValidatePathArg = {
-  type?: 'file' | 'directory',
-  access?: 'read' | 'readWrite',
-  path: string,
+  type?: 'file' | 'directory';
+  access?: 'read' | 'readWrite';
+  path: string;
 };
 ipcMain.handle('validate-path', async (event, arg: ValidatePathArg) => {
   const { type = 'file', access = 'read', path } = arg;
-  const constants = access === 'read' ? fs.constants.R_OK : fs.constants.R_OK | fs.constants.W_OK;
+  const constants =
+    access === 'read'
+      ? fs.constants.R_OK
+      : fs.constants.R_OK | fs.constants.W_OK;
   try {
     await fs.access(path, constants);
     const stat = await fs.stat(path);
@@ -70,8 +79,14 @@ ipcMain.handle('validate-path', async (event, arg: ValidatePathArg) => {
   }
 });
 
-ipcMain.handle('process-input-selection', (event, arg: IOSelection) => processInputSelectionImpl(arg));
-ipcMain.handle('process-column-definition-and-run-job', (event, arg: IOSelection & HeaderSelection) => processColumnDefinitionAndRunJobImpl(arg));
+ipcMain.handle('process-input-selection', (event, arg: IOSelection) =>
+  processInputSelectionImpl(arg),
+);
+ipcMain.handle(
+  'process-column-definition-and-run-job',
+  (event, arg: IOSelection & HeaderSelection) =>
+    processColumnDefinitionAndRunJobImpl(arg),
+);
 
 ipcMain.handle('open-external', (event, url: string) => {
   shell.openExternal(url);

@@ -31,5 +31,5 @@ export function TitleDisplay() {
         {title}
       </h1>
     </header>
-  )
+  );
 }

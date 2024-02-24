@@ -32,6 +32,6 @@ import { App } from '@/components/App';
 
 import '@/global.css';
 
-const root = createRoot(document.getElementById('root'))
+const root = createRoot(document.getElementById('root'));
 const app = createElement(App);
 root.render(app);

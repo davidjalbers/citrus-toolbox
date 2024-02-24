@@ -1,30 +1,33 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import * as z from "zod";
+import * as z from 'zod';
 
-export const PrivacyFormEntrySchema = z.object({
-  identifier: z.string(),
-  consent: z.boolean(),
-}).passthrough();
+export const PrivacyFormEntrySchema = z
+  .object({
+    identifier: z.string(),
+    consent: z.boolean(),
+  })
+  .passthrough();
 export type PrivacyFormEntry = z.infer<typeof PrivacyFormEntrySchema>;
 
-export const SurveyEntrySchema = z.object({
-  identifier: z.string(),
-}).passthrough();
+export const SurveyEntrySchema = z
+  .object({
+    identifier: z.string(),
+  })
+  .passthrough();
 export type SurveyEntry = z.infer<typeof SurveyEntrySchema>;
 
-
 const StatusSchema = z.enum([
-  "OK_VALID",
-  "ERROR_NO_CONSENT",
-  "ERROR_ONLY_PRIVACY_FORM",
-  "ERROR_ONLY_SURVEY",
-  "ERROR_INVALID",
+  'OK_VALID',
+  'ERROR_NO_CONSENT',
+  'ERROR_ONLY_PRIVACY_FORM',
+  'ERROR_ONLY_SURVEY',
+  'ERROR_INVALID',
 ]);
 export type Status = z.infer<typeof StatusSchema>;
 
 const CommentedEntrySchema = z.object({
-  status: StatusSchema, 
-  mostRecentOccurence: z.union([z.literal("this"), z.number()]) 
+  status: StatusSchema,
+  mostRecentOccurence: z.union([z.literal('this'), z.number()]),
 });
 
 const EntrySchema = z.object({
@@ -37,7 +40,7 @@ const EntrySchema = z.object({
 
 type Entry = z.infer<typeof EntrySchema>;
 
-type UnprocessedEntry = PrivacyFormEntry & Omit<Entry, "status">;
+type UnprocessedEntry = PrivacyFormEntry & Omit<Entry, 'status'>;
 
 const JobResultStatsSchema = z.object({
   timestamp: z.date(),
@@ -54,8 +57,12 @@ export type JobResultStats = z.infer<typeof JobResultStatsSchema>;
 
 const JobResultSchema = z.object({
   stats: JobResultStatsSchema,
-  privacyFormEntries: z.array(PrivacyFormEntrySchema.merge(CommentedEntrySchema).passthrough()),
-  surveyEntries: z.array(SurveyEntrySchema.merge(CommentedEntrySchema).passthrough()),
+  privacyFormEntries: z.array(
+    PrivacyFormEntrySchema.merge(CommentedEntrySchema).passthrough(),
+  ),
+  surveyEntries: z.array(
+    SurveyEntrySchema.merge(CommentedEntrySchema).passthrough(),
+  ),
   uniqueEntries: z.array(EntrySchema),
 });
 export type JobResult = z.infer<typeof JobResultSchema>;
@@ -147,15 +154,27 @@ export function executeJob(rawArg: JobArg): JobResult {
   });
   // Write commented privacy form entries
   arg.privacyFormEntries.forEach((entry, index) => {
-    const { status, indicesInPrivacyForm } = result.uniqueEntries.find(uniqueEntry => uniqueEntry.identifier === entry.identifier)!;
+    const { status, indicesInPrivacyForm } = result.uniqueEntries.find(
+      uniqueEntry => uniqueEntry.identifier === entry.identifier,
+    )!;
     const lastIndex = indicesInPrivacyForm.at(-1)!;
-    result.privacyFormEntries.push({ ...entry, status, mostRecentOccurence: lastIndex === index ? 'this' : lastIndex });
+    result.privacyFormEntries.push({
+      ...entry,
+      status,
+      mostRecentOccurence: lastIndex === index ? 'this' : lastIndex,
+    });
   });
   // Write commented survey entries
   arg.surveyEntries.forEach((entry, index) => {
-    const { status, indicesInSurvey } = result.uniqueEntries.find(uniqueEntry => uniqueEntry.identifier === entry.identifier)!;
+    const { status, indicesInSurvey } = result.uniqueEntries.find(
+      uniqueEntry => uniqueEntry.identifier === entry.identifier,
+    )!;
     const lastIndex = indicesInSurvey.at(-1)!;
-    result.surveyEntries.push({ ...entry, status, mostRecentOccurence: lastIndex === index ? 'this' : lastIndex });
+    result.surveyEntries.push({
+      ...entry,
+      status,
+      mostRecentOccurence: lastIndex === index ? 'this' : lastIndex,
+    });
   });
   return JobResultSchema.parse(result);
 }
