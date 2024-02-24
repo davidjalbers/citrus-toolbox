@@ -11,7 +11,7 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-Menu.setApplicationMenu(null);
+//Menu.setApplicationMenu(null);
 
 app.on('ready', () => {
   // Create the browser window.
@@ -22,6 +22,7 @@ app.on('ready', () => {
     height: 1080,
     maximizable: false,
     fullscreenable: false,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
