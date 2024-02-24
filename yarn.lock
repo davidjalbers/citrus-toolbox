@@ -1912,16 +1912,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.11.18":
-  version: 18.19.2
-  resolution: "@types/node@npm:18.19.2"
-  dependencies:
-    undici-types: "npm:~5.26.4"
-  checksum: 10c0/ba54b735a8ab8692fa92b5658664dd470ae284e8dc36505d5414ae94fd44d0a7e9a2956c247a5868932dd69920a833867971e05bfb41a5aa32c89e4e7ef304f5
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^20.11.20":
+"@types/node@npm:^20.11.20, @types/node@npm:^20.9.0":
   version: 20.11.20
   resolution: "@types/node@npm:20.11.20"
   dependencies:
@@ -2811,7 +2802,7 @@ __metadata:
     class-variance-authority: "npm:^0.7.0"
     clsx: "npm:^2.1.0"
     cmdk: "npm:^0.2.1"
-    electron: "npm:28.2.4"
+    electron: "npm:^29.0.1"
     electron-squirrel-startup: "npm:^1.0.0"
     eslint: "npm:^8.57.0"
     eslint-import-resolver-typescript: "npm:^3.6.1"
@@ -3386,16 +3377,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:28.2.4":
-  version: 28.2.4
-  resolution: "electron@npm:28.2.4"
+"electron@npm:^29.0.1":
+  version: 29.0.1
+  resolution: "electron@npm:29.0.1"
   dependencies:
     "@electron/get": "npm:^2.0.0"
-    "@types/node": "npm:^18.11.18"
+    "@types/node": "npm:^20.9.0"
     extract-zip: "npm:^2.0.1"
   bin:
     electron: cli.js
-  checksum: 10c0/b58c4b53d1947b49f98e25e4f9e0493592ba613105020ee6cea7e328b9b9d9521a671e0b3f1b8fcffa9254cfefdad96e56767c354317f2092e4a4b3b48afd726
+  checksum: 10c0/828845b89ce8f759a38c85b7183b76ee9ef250ca6b87714dc44ede82fe6bb9f48ceb1418ed9a9ef640ec9aaa7431669a956915681808ee50a5731b8e84dcd6cd
   languageName: node
   linkType: hard
 
