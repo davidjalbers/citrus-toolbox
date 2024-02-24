@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell, Menu } from 'electron';
 import path from 'path';
 import * as fs from 'fs/promises';
 
@@ -10,6 +10,8 @@ import { HeaderSelection } from './components/ps-matcher/HeaderSelectionForm';
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
+
+Menu.setApplicationMenu(null);
 
 app.on('ready', () => {
   // Create the browser window.
