@@ -32,6 +32,8 @@ import { App } from '@/components/App';
 
 import '@/global.css';
 
-const root = createRoot(document.getElementById('root'));
+const el = document.getElementById('root');
+if (!el) throw new Error('No "root" element found');
+const root = createRoot(el);
 const app = createElement(App);
 root.render(app);
