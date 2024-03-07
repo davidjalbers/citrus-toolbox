@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { FC, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ChevronsUpDown, Check, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandGroup, CommandItem } from '@/components/ui/command';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { Headers } from '@/lib/schemas';
 import { ViewStepComponent } from '@/hooks/use-multistep-form';
@@ -29,7 +29,7 @@ export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], Head
   push,
   pop,
 }) => {
-  const form = useForm({
+  const form = useForm<HeaderSelection>({
     resolver: zodResolver(HeaderSelectionSchema),
     defaultValues: {
       privacyFormIdentifierHeader: '',
@@ -41,10 +41,12 @@ export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], Head
     reValidateMode: 'onBlur',
   });
   const isLoading = form.formState.isSubmitting;
-  const { privacyFormFileHeaders, surveyFileHeaders } = data[1];
-  const [isPopover1Open, setIsPopover1Open] = useState(false);
-  const [isPopover2Open, setIsPopover2Open] = useState(false);
-  const [isPopover3Open, setIsPopover3Open] = useState(false);
+  const { privacyFormFileHeaders: raw_privacyFormFileHeaders, surveyFileHeaders: raw_surveyFileHeaders } = data[1];
+  const transformArray = (strings: string[]): { label: string; value: string }[] => {
+    return strings.map((str, index) => ({ label: str, value: index.toString() }));
+  };
+  const privacyFormFileHeaders = transformArray(raw_privacyFormFileHeaders);
+  const surveyFileHeaders = transformArray(raw_surveyFileHeaders);
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(push)} className={cn('flex flex-col space-y-10')}>
@@ -58,41 +60,7 @@ export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], Head
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel className={cn('font-bold')}>Privacy Form Study Code Column</FormLabel>
-              <Popover open={isPopover1Open} onOpenChange={setIsPopover1Open}>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn('w-[300px] justify-between', !field.value && 'text-muted-foreground')}
-                    >
-                      <span className={cn('truncate')}>
-                        {field.value ? privacyFormFileHeaders.find(sep => sep === field.value) : 'Select column'}
-                      </span>
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[300px] p-0">
-                  <Command>
-                    <CommandGroup>
-                      {privacyFormFileHeaders.map(sep => (
-                        <CommandItem
-                          value={sep}
-                          key={sep}
-                          onSelect={() => {
-                            setIsPopover1Open(false);
-                            form.setValue('privacyFormIdentifierHeader', sep);
-                          }}
-                        >
-                          <Check className={cn('mr-2 h-4 w-4', sep === field.value ? 'opacity-100' : 'opacity-0')} />
-                          <span>{sep}</span>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              <HeaderCombobox value={field.value} onChange={field.onChange} options={privacyFormFileHeaders} />
               <FormDescription>
                 Select the column that contains the study code in the privacy form file.
               </FormDescription>
@@ -106,41 +74,7 @@ export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], Head
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel className={cn('font-bold')}>Privacy Form Consent Column</FormLabel>
-              <Popover open={isPopover2Open} onOpenChange={setIsPopover2Open}>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn('w-[300px] justify-between', !field.value && 'text-muted-foreground')}
-                    >
-                      <span className={cn('truncate')}>
-                        {field.value ? privacyFormFileHeaders.find(sep => sep === field.value) : 'Select column'}
-                      </span>
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[300px] p-0">
-                  <Command>
-                    <CommandGroup>
-                      {privacyFormFileHeaders.map(sep => (
-                        <CommandItem
-                          value={sep}
-                          key={sep}
-                          onSelect={() => {
-                            setIsPopover2Open(false);
-                            form.setValue('privacyFormConsentHeader', sep);
-                          }}
-                        >
-                          <Check className={cn('mr-2 h-4 w-4', sep === field.value ? 'opacity-100' : 'opacity-0')} />
-                          <span>{sep}</span>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              <HeaderCombobox value={field.value} onChange={field.onChange} options={privacyFormFileHeaders} />
               <FormDescription>Select the column that contains the consent in the privacy form file.</FormDescription>
               <FormMessage />
             </FormItem>
@@ -169,41 +103,7 @@ export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], Head
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel className={cn('font-bold')}>Survey Study Code Column</FormLabel>
-              <Popover open={isPopover3Open} onOpenChange={setIsPopover3Open}>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn('w-[300px] justify-between', !field.value && 'text-muted-foreground')}
-                    >
-                      <span className={cn('truncate')}>
-                        {field.value ? surveyFileHeaders.find(sep => sep === field.value) : 'Select column'}
-                      </span>
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[300px] p-0">
-                  <Command>
-                    <CommandGroup>
-                      {surveyFileHeaders.map(sep => (
-                        <CommandItem
-                          value={sep}
-                          key={sep}
-                          onSelect={() => {
-                            setIsPopover3Open(false);
-                            form.setValue('surveyIdentifierHeader', sep);
-                          }}
-                        >
-                          <Check className={cn('mr-2 h-4 w-4', sep === field.value ? 'opacity-100' : 'opacity-0')} />
-                          <span>{sep}</span>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              <HeaderCombobox value={field.value} onChange={field.onChange} options={surveyFileHeaders} />
               <FormDescription>Select the column that contains the study code in the survey file.</FormDescription>
               <FormMessage />
             </FormItem>
@@ -225,5 +125,63 @@ export const HeaderSelectionForm: ViewStepComponent<[IOSelection, Headers], Head
         </div>
       </form>
     </Form>
+  );
+};
+
+type ComboboxProps = {
+  value?: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+};
+
+const HeaderCombobox: FC<ComboboxProps> = ({ value, onChange, options }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className={cn('w-[500px] justify-between', !value && 'text-muted-foreground')}
+        >
+          <span className={cn('truncate')}>
+            {value ? options.find(option => option.value === value)?.label : 'Select column'}
+          </span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[500px] p-0">
+        <Command
+          filter={(value, search) => {
+            if (options[parseInt(value, 10)].label.toLowerCase().includes(search.toLowerCase())) return 1;
+            return 0;
+          }}
+        >
+          <CommandInput placeholder="Search column..." />
+          <CommandEmpty>No column found.</CommandEmpty>
+          <CommandList>
+            <CommandGroup>
+              {options.map(option => (
+                <CommandItem
+                  key={option.value}
+                  value={option.value}
+                  onSelect={currentValue => {
+                    onChange(currentValue === value ? '' : currentValue);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn('mr-2 h-4 w-4 min-h-4 min-w-4', value === option.value ? 'opacity-100' : 'opacity-0')}
+                  />
+                  {option.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 };

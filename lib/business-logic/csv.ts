@@ -50,21 +50,36 @@ export async function createJobArgFromCsv(arg: {
     separator,
   } = arg;
   const privacyFormHeaderTransformer: csv.ParserHeaderTransformFunction = headers => {
-    if (!headers.includes(privacyFormIdentifierHeader))
-      throw new Error(`Column "${privacyFormIdentifierHeader}" not found in privacy form file`);
-    if (!headers.includes(privacyFormConsentHeader))
-      throw new Error(`Column "${privacyFormConsentHeader}" not found in privacy form file`);
-    return headers.map(header => {
-      if (header === privacyFormIdentifierHeader) return 'identifier';
-      if (header === privacyFormConsentHeader) return 'consent';
+    const idxPrivacyFormIdentifierHeader = parseInt(privacyFormIdentifierHeader, 10);
+    if (
+      idxPrivacyFormIdentifierHeader < 0 ||
+      idxPrivacyFormIdentifierHeader >= headers.length ||
+      isNaN(idxPrivacyFormIdentifierHeader)
+    )
+      throw new Error(`Column with index "${privacyFormIdentifierHeader}" not found in privacy form file`);
+    const idxPrivacyFormConsentHeader = parseInt(privacyFormConsentHeader, 10);
+    if (
+      idxPrivacyFormConsentHeader < 0 ||
+      idxPrivacyFormConsentHeader >= headers.length ||
+      isNaN(idxPrivacyFormConsentHeader)
+    )
+      throw new Error(`Column with index "${privacyFormConsentHeader}" not found in privacy form file`);
+    return headers.map((header, idx) => {
+      if (idx == idxPrivacyFormIdentifierHeader) return 'identifier';
+      if (idx == idxPrivacyFormConsentHeader) return 'consent';
       return header;
     });
   };
   const surveyHeaderTransformer: csv.ParserHeaderTransformFunction = headers => {
-    if (!headers.includes(surveyIdentifierHeader))
-      throw new Error(`Column "${surveyIdentifierHeader}" not found in survey file`);
-    return headers.map(header => {
-      if (header === surveyIdentifierHeader) return 'identifier';
+    const idxSurveyIdentifierHeader = parseInt(surveyIdentifierHeader, 10);
+    if (
+      idxSurveyIdentifierHeader < 0 ||
+      idxSurveyIdentifierHeader >= headers.length ||
+      isNaN(idxSurveyIdentifierHeader)
+    )
+      throw new Error(`Column with index "${surveyIdentifierHeader}" not found in survey file`);
+    return headers.map((header, idx) => {
+      if (idx == idxSurveyIdentifierHeader) return 'identifier';
       return header;
     });
   };
