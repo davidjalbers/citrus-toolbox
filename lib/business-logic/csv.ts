@@ -163,6 +163,13 @@ export async function writeJobResultToCsv(arg: {
 
   const getNumberOfDuplicates = (indices: number[]) => Math.max(indices.length - 1, 0);
 
+  if (result.uniqueEntries.length !== 0) {
+    csvAllStudyCodes.write(Object.keys(result.uniqueEntries[0]));
+    csvValidStudyCodes.write(Object.keys(result.uniqueEntries[0]));
+  }
+  if (result.privacyFormEntries.length !== 0) csvCommentedPrivacyForm.write(Object.keys(result.privacyFormEntries[0]));
+  if (result.surveyEntries.length !== 0) csvCommentedSurvey.write(Object.keys(result.surveyEntries[0]));
+
   result.uniqueEntries.forEach(entry => {
     const { passthrough, ...entryWithoutPassthrough } = entry;
     const entryForOutput = {
@@ -172,11 +179,11 @@ export async function writeJobResultToCsv(arg: {
       numberOfDuplicatesInSurvey: getNumberOfDuplicates(entry.indicesInSurvey),
       ...passthrough,
     };
-    csvAllStudyCodes.write(entryForOutput);
-    if (entry.status === 'OK_VALID') csvValidStudyCodes.write(entryForOutput);
+    csvAllStudyCodes.write(Object.values(entryForOutput));
+    if (entry.status === 'OK_VALID') csvValidStudyCodes.write(Object.values(entryForOutput));
   });
-  result.privacyFormEntries.forEach(entry => csvCommentedPrivacyForm.write(entry));
-  result.surveyEntries.forEach(entry => csvCommentedSurvey.write(entry));
+  result.privacyFormEntries.forEach(entry => csvCommentedPrivacyForm.write(Object.values(entry)));
+  result.surveyEntries.forEach(entry => csvCommentedSurvey.write(Object.values(entry)));
 
   csvAllStudyCodes.end();
   csvValidStudyCodes.end();
