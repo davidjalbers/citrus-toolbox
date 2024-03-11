@@ -12,7 +12,7 @@ import {
   Status,
 } from './core';
 
-export async function getHeadersFromCsv(arg: { filePath: string; separator: string }) {
+export async function getHeadersFromCsv(arg: { filePath: string; separator: string }): Promise<string[]> {
   const { filePath, separator } = arg;
   const readStream = fs.createReadStream(filePath);
   const csvStream = readStream.pipe(csv.parse({ headers: true, delimiter: separator }));
