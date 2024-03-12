@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import * as csv from 'fast-csv';
+
 import {
   JobResult,
   JobArg,
@@ -9,26 +9,17 @@ import {
   PrivacyFormEntrySchema,
   SurveyEntry,
   SurveyEntrySchema,
-  Status,
 } from './core';
+
+import { stringify } from 'csv-stringify/sync';
+import { parse } from 'csv-parse/sync';
 
 export async function getHeadersFromCsv(arg: { filePath: string; separator: string }): Promise<string[]> {
   const { filePath, separator } = arg;
-  const readStream = fs.createReadStream(filePath);
-  const csvStream = readStream.pipe(csv.parse({ headers: true, delimiter: separator }));
-  const headers = await new Promise<string[]>((resolve, reject) => {
-    csvStream
-      .on('error', error => reject(error))
-      .on('headers', data => resolve(data))
-      .on('data', () => {
-        return;
-      })
-      .on('data-invalid', () => reject(new Error('Received event "data-invalid"')))
-      .on('end', () => reject(new Error('Received event "end" before "headers"')));
-  });
-  readStream.close();
-  csvStream.destroy();
-  return headers;
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const records = parse(content, { bom: true, delimiter: separator });
+  if (records.length === 0) throw new Error('No records found during header scan');
+  return records[0];
 }
 
 export async function createJobArgFromCsv(arg: {
@@ -49,7 +40,7 @@ export async function createJobArgFromCsv(arg: {
     surveyIdentifierHeader,
     separator,
   } = arg;
-  const privacyFormHeaderTransformer: csv.ParserHeaderTransformFunction = headers => {
+  const privacyFormHeaderTransformer = (headers: string[]) => {
     const idxPrivacyFormIdentifierHeader = parseInt(privacyFormIdentifierHeader, 10);
     if (
       idxPrivacyFormIdentifierHeader < 0 ||
@@ -70,7 +61,7 @@ export async function createJobArgFromCsv(arg: {
       return header;
     });
   };
-  const surveyHeaderTransformer: csv.ParserHeaderTransformFunction = headers => {
+  const surveyHeaderTransformer = (headers: string[]) => {
     const idxSurveyIdentifierHeader = parseInt(surveyIdentifierHeader, 10);
     if (
       idxSurveyIdentifierHeader < 0 ||
@@ -84,43 +75,40 @@ export async function createJobArgFromCsv(arg: {
     });
   };
 
-  const rsPrivacyForm = fs.createReadStream(privacyFormFilePath);
-  const csvPrivacyForm = rsPrivacyForm.pipe(csv.parse({ headers: privacyFormHeaderTransformer, delimiter: separator }));
-  const privacyFormEntries: PrivacyFormEntry[] = [];
-  await new Promise<void>((resolve, reject) => {
-    csvPrivacyForm
-      .on('error', error => reject(error))
-      .on('data', data => {
-        const entry = PrivacyFormEntrySchema.parse({
-          ...data,
-          consent: privacyFormConsentTransformer(data.consent),
-        });
-        privacyFormEntries.push(entry);
-      })
-      .on('data-invalid', () => reject(new Error('Received event "data-invalid"')))
-      .on('end', () => resolve());
+  const privacyFormContent = fs.readFileSync(privacyFormFilePath, 'utf-8');
+  const privacyFormRecords: object[] = parse(privacyFormContent, {
+    bom: true,
+    delimiter: separator,
+    columns: privacyFormHeaderTransformer,
   });
-  csvPrivacyForm.destroy();
-  rsPrivacyForm.close();
+  const privacyFormEntries: PrivacyFormEntry[] = privacyFormRecords.map(record => {
+    return PrivacyFormEntrySchema.parse({
+      ...record,
+      // @ts-expect-error - if the record doesn't have consent, the zod validation will fail anyway
+      consent: privacyFormConsentTransformer(record.consent),
+    });
+  });
 
-  const rsSurvey = fs.createReadStream(surveyFilePath);
-  const csvSurvey = rsSurvey.pipe(csv.parse({ headers: surveyHeaderTransformer, delimiter: separator }));
-  const surveyEntries: SurveyEntry[] = [];
-  await new Promise<void>((resolve, reject) => {
-    csvSurvey
-      .on('error', error => reject(error))
-      .on('data', data => {
-        const entry = SurveyEntrySchema.parse(data);
-        surveyEntries.push(entry);
-      })
-      .on('data-invalid', () => reject(new Error('Received event "data-invalid"')))
-      .on('end', () => resolve());
+  const surveyContent = fs.readFileSync(surveyFilePath, 'utf-8');
+  const surveyRecords: object[] = parse(surveyContent, {
+    bom: true,
+    delimiter: separator,
+    columns: surveyHeaderTransformer,
   });
-  csvSurvey.destroy();
-  rsSurvey.close();
+  const surveyEntries: SurveyEntry[] = surveyRecords.map(record => SurveyEntrySchema.parse(record));
 
   return JobArgSchema.parse({ privacyFormEntries, surveyEntries });
 }
+
+const statusVisualization = {
+  OK_VALID: 'P+S',
+  ERROR_NO_CONSENT: 'P+S',
+  ERROR_ONLY_PRIVACY_FORM: 'P',
+  ERROR_ONLY_SURVEY: 'S',
+  ERROR_INVALID: '',
+};
+
+const getNumberOfDuplicates = (indices: number[]) => Math.max(indices.length - 1, 0);
 
 export async function writeJobResultToCsv(arg: {
   result: JobResult;
@@ -130,72 +118,29 @@ export async function writeJobResultToCsv(arg: {
 }): Promise<void> {
   const { result, outputDirectoryPath, privacyFormFilePath, surveyFilePath } = arg;
 
-  const csvAllStudyCodes = csv.format({ headers: true });
-  const csvValidStudyCodes = csv.format({ headers: true });
-  const csvCommentedPrivacyForm = csv.format({ headers: true });
-  const csvCommentedSurvey = csv.format({ headers: true });
-  const wsAllStudyCodes = csvAllStudyCodes.pipe(
-    fs.createWriteStream(path.join(outputDirectoryPath, 'StudyCodes_all.csv')),
+  const outputEntries = result.uniqueEntries.map(({ passthrough, ...entry }) => ({
+    ...entry,
+    statusVisualization: statusVisualization[entry.status],
+    numberOfDuplicatesInPrivacyForm: getNumberOfDuplicates(entry.indicesInPrivacyForm),
+    numberOfDuplicatesInSurvey: getNumberOfDuplicates(entry.indicesInSurvey),
+    ...passthrough,
+  }));
+
+  const allOutput = stringify(outputEntries, { header: true });
+  const validOutput = stringify(
+    outputEntries.filter(entry => entry.status === 'OK_VALID'),
+    { header: true },
   );
-  const wsValidStudyCodes = csvValidStudyCodes.pipe(
-    fs.createWriteStream(path.join(outputDirectoryPath, 'StudyCodes_valid.csv')),
+  const privacyFormOutput = stringify(result.privacyFormEntries, { header: true });
+  const surveyOutput = stringify(result.surveyEntries, { header: true });
+  fs.writeFileSync(path.join(outputDirectoryPath, `StudyCodes_all.csv`), allOutput);
+  fs.writeFileSync(path.join(outputDirectoryPath, `StudyCodes_valid.csv`), validOutput);
+  fs.writeFileSync(
+    path.join(outputDirectoryPath, `${path.basename(privacyFormFilePath, '.csv')}_commented.csv`),
+    privacyFormOutput,
   );
-  const wsCommentedPrivacyForm = csvCommentedPrivacyForm.pipe(
-    fs.createWriteStream(path.join(outputDirectoryPath, `${path.basename(privacyFormFilePath, '.csv')}_commented.csv`)),
+  fs.writeFileSync(
+    path.join(outputDirectoryPath, `${path.basename(surveyFilePath, '.csv')}_commented.csv`),
+    surveyOutput,
   );
-  const wsCommentedSurvey = csvCommentedSurvey.pipe(
-    fs.createWriteStream(path.join(outputDirectoryPath, `${path.basename(surveyFilePath, '.csv')}_commented.csv`)),
-  );
-
-  const getStatusVisualization = (status: Status): string => {
-    switch (status) {
-      case 'OK_VALID':
-      case 'ERROR_NO_CONSENT':
-        return 'P+S';
-      case 'ERROR_ONLY_PRIVACY_FORM':
-        return 'P';
-      case 'ERROR_ONLY_SURVEY':
-        return 'S';
-      case 'ERROR_INVALID':
-        return '';
-    }
-  };
-
-  const getNumberOfDuplicates = (indices: number[]) => Math.max(indices.length - 1, 0);
-
-  result.uniqueEntries.forEach(entry => {
-    const { passthrough, ...entryWithoutPassthrough } = entry;
-    const entryForOutput = {
-      ...entryWithoutPassthrough,
-      statusVisualization: getStatusVisualization(entry.status),
-      numberOfDuplicatesInPrivacyForm: getNumberOfDuplicates(entry.indicesInPrivacyForm),
-      numberOfDuplicatesInSurvey: getNumberOfDuplicates(entry.indicesInSurvey),
-      ...passthrough,
-    };
-    csvAllStudyCodes.write(entryForOutput);
-    if (entry.status === 'OK_VALID') csvValidStudyCodes.write(entryForOutput);
-  });
-  result.privacyFormEntries.forEach(entry => csvCommentedPrivacyForm.write(entry));
-  result.surveyEntries.forEach(entry => csvCommentedSurvey.write(entry));
-
-  csvAllStudyCodes.end();
-  csvValidStudyCodes.end();
-  csvCommentedPrivacyForm.end();
-  csvCommentedSurvey.end();
-
-  await Promise.allSettled([
-    () => new Promise<void>(resolve => csvAllStudyCodes.on('finish', () => resolve())),
-    () => new Promise<void>(resolve => csvValidStudyCodes.on('finish', () => resolve())),
-    () => new Promise<void>(resolve => csvCommentedPrivacyForm.on('finish', () => resolve())),
-    () => new Promise<void>(resolve => csvCommentedSurvey.on('finish', () => resolve())),
-  ]);
-
-  csvAllStudyCodes.destroy();
-  csvValidStudyCodes.destroy();
-  csvCommentedPrivacyForm.destroy();
-  csvCommentedSurvey.destroy();
-  wsAllStudyCodes.close();
-  wsValidStudyCodes.close();
-  wsCommentedPrivacyForm.close();
-  wsCommentedSurvey.close();
 }

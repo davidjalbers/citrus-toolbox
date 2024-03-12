@@ -2970,6 +2970,7 @@ __metadata:
     class-variance-authority: "npm:^0.7.0"
     clsx: "npm:^2.1.0"
     cmdk: "npm:^0.2.1"
+    csv: "npm:^6.3.8"
     electron: "npm:^29.1.1"
     electron-squirrel-startup: "npm:^1.0.0"
     eslint: "npm:^8.57.0"
@@ -3259,6 +3260,39 @@ __metadata:
   version: 3.1.2
   resolution: "csstype@npm:3.1.2"
   checksum: 10c0/32c038af259897c807ac738d9eab16b3d86747c72b09d5c740978e06f067f9b7b1737e1b75e407c7ab1fe1543dc95f20e202b4786aeb1b8d3bdf5d5ce655e6c6
+  languageName: node
+  linkType: hard
+
+"csv-generate@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "csv-generate@npm:4.4.0"
+  checksum: 10c0/2a3fbf06a0e4e5cb01190bf7679eeda226bd75f3bceae64f861adbddde61bbd5b4ed3bb27d15e78b4089b1c471d89d68ae6da76ed5768998dbe8e8c716d35382
+  languageName: node
+  linkType: hard
+
+"csv-parse@npm:^5.5.5":
+  version: 5.5.5
+  resolution: "csv-parse@npm:5.5.5"
+  checksum: 10c0/717d8e66386cbeed9baea93f231efd3aff967a9b70c27f0c8bb19fa5a723d01b2d426b6728e8f1e5e26731ec4371a5f513e1a524344411735fc8d3848770409e
+  languageName: node
+  linkType: hard
+
+"csv-stringify@npm:^6.4.6":
+  version: 6.4.6
+  resolution: "csv-stringify@npm:6.4.6"
+  checksum: 10c0/df23b1ff125a6b8634a5b1878b6255e6a666391c4e904b0105e5f23a0bfe1b1abe27cf6c7d8ea923557226b25d93b2b4ae1202fa6b0c17d3bcb0397e9078ff83
+  languageName: node
+  linkType: hard
+
+"csv@npm:^6.3.8":
+  version: 6.3.8
+  resolution: "csv@npm:6.3.8"
+  dependencies:
+    csv-generate: "npm:^4.4.0"
+    csv-parse: "npm:^5.5.5"
+    csv-stringify: "npm:^6.4.6"
+    stream-transform: "npm:^3.3.1"
+  checksum: 10c0/a39d0b8da35d4712b50cd7d4c615e66a0c1d5a82573d8d29630182fe14281fd8413068fb19894df75d132ce98651b35a8527a0885a7198bc6c64906fd35d1e2f
   languageName: node
   linkType: hard
 
@@ -7693,6 +7727,13 @@ __metadata:
   version: 2.0.1
   resolution: "statuses@npm:2.0.1"
   checksum: 10c0/34378b207a1620a24804ce8b5d230fea0c279f00b18a7209646d5d47e419d1cc23e7cbf33a25a1e51ac38973dc2ac2e1e9c647a8e481ef365f77668d72becfd0
+  languageName: node
+  linkType: hard
+
+"stream-transform@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "stream-transform@npm:3.3.1"
+  checksum: 10c0/9c3611daba9f3df7b89f156710742eab631505d2acb5435200f66418bb357af26c2c2b9db332d79e9f1d78ac4b65c4a03317e8f0658116ae4f18979186c15419
   languageName: node
   linkType: hard
 

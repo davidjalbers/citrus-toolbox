@@ -60,6 +60,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^0.2.1",
+    "csv": "^6.3.8",
     "electron-squirrel-startup": "^1.0.0",
     "fast-csv": "^5.0.1",
     "lucide-react": "^0.356.0",
