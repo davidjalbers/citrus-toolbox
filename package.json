@@ -1,7 +1,7 @@
 {
   "name": "citrus-toolbox",
   "productName": "CITRUS Toolbox",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "CITRUS Toolbox",
   "main": ".vite/build/main.js",
   "scripts": {
