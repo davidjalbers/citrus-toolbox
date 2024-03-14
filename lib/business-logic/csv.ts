@@ -115,24 +115,37 @@ export async function writeJobResultToCsv(arg: {
   outputDirectoryPath: string;
   privacyFormFilePath: string;
   surveyFilePath: string;
+  replaceNewlines: boolean;
 }): Promise<void> {
-  const { result, outputDirectoryPath, privacyFormFilePath, surveyFilePath } = arg;
+  const { result, outputDirectoryPath, privacyFormFilePath, surveyFilePath, replaceNewlines } = arg;
 
-  const outputEntries = result.uniqueEntries.map(({ passthrough, ...entry }) => ({
+  let outputEntries = result.uniqueEntries.map(({ passthrough, ...entry }) => ({
     ...entry,
     statusVisualization: statusVisualization[entry.status],
     numberOfDuplicatesInPrivacyForm: getNumberOfDuplicates(entry.indicesInPrivacyForm),
     numberOfDuplicatesInSurvey: getNumberOfDuplicates(entry.indicesInSurvey),
     ...passthrough,
   }));
-
+  if (replaceNewlines) {
+    outputEntries = outputEntries.map(replaceNewlinesWithSlashes);
+  }
   const allOutput = stringify(outputEntries, { header: true });
   const validOutput = stringify(
     outputEntries.filter(entry => entry.status === 'OK_VALID'),
     { header: true },
   );
-  const privacyFormOutput = stringify(result.privacyFormEntries, { header: true });
-  const surveyOutput = stringify(result.surveyEntries, { header: true });
+
+  let outputEntriesPrivacyForm = result.privacyFormEntries;
+  if (replaceNewlines) {
+    outputEntriesPrivacyForm = outputEntriesPrivacyForm.map(replaceNewlinesWithSlashes);
+  }
+  const privacyFormOutput = stringify(outputEntriesPrivacyForm, { header: true });
+  let outputEntriesSurvey = result.surveyEntries;
+  if (replaceNewlines) {
+    outputEntriesSurvey = outputEntriesSurvey.map(replaceNewlinesWithSlashes);
+  }
+  const surveyOutput = stringify(outputEntriesSurvey, { header: true });
+
   fs.writeFileSync(path.join(outputDirectoryPath, `StudyCodes_all.csv`), allOutput);
   fs.writeFileSync(path.join(outputDirectoryPath, `StudyCodes_valid.csv`), validOutput);
   fs.writeFileSync(
@@ -143,4 +156,17 @@ export async function writeJobResultToCsv(arg: {
     path.join(outputDirectoryPath, `${path.basename(surveyFilePath, '.csv')}_commented.csv`),
     surveyOutput,
   );
+}
+
+export function replaceNewlinesWithSlashes<T extends object>(obj: T): T {
+  const newObj = {} as T;
+  for (const key in obj) {
+    if (typeof obj[key] === 'string') {
+      // @ts-expect-error - we know that the value is a string
+      newObj[key] = obj[key].replace(/\n/g, ' / ');
+    } else {
+      newObj[key] = obj[key];
+    }
+  }
+  return newObj;
 }

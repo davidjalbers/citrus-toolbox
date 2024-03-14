@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { ViewStepComponent } from '@/hooks/use-multistep-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { Checkbox } from '../ui/checkbox';
 
 const filePath = z
   .string()
@@ -41,6 +42,7 @@ export const IOSelectionSchema = z.object({
   privacyFormFilePath: filePath,
   surveyFilePath: filePath,
   outputDirectoryPath: directoryPath,
+  replaceNewlines: z.boolean(),
 });
 export type IOSelection = z.infer<typeof IOSelectionSchema>;
 
@@ -52,6 +54,7 @@ export const IOSelectionForm: ViewStepComponent<[], IOSelection> = ({ push }) =>
       privacyFormFilePath: import.meta.env.VITE_DEFAULT_PRIVACY_FORM_FILE_PATH || '',
       surveyFilePath: import.meta.env.VITE_DEFAULT_SURVEY_FILE_PATH || '',
       outputDirectoryPath: import.meta.env.VITE_DEFAULT_OUTPUT_DIR_PATH || '',
+      replaceNewlines: false,
     },
     mode: 'onSubmit',
     reValidateMode: 'onBlur',
@@ -197,6 +200,24 @@ export const IOSelectionForm: ViewStepComponent<[], IOSelection> = ({ push }) =>
                 <strong>Caution:</strong> Existing files will be overwritten without further warning!
               </FormDescription>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="replaceNewlines"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 ">
+              <FormControl>
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+              </FormControl>
+              <div className="space-y-2 leading-none">
+                <FormLabel className={cn('font-bold')}>Replace Line Breaks in Output Files</FormLabel>
+                <FormDescription>
+                  Enabling this will replace all line breaks in the output files with slashes. This is useful for
+                  importing into older versions of Microsoft Excel.
+                </FormDescription>
+              </div>
             </FormItem>
           )}
         />

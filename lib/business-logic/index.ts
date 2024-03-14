@@ -34,6 +34,7 @@ export async function processColumnDefinitionAndRunJobImpl(
     privacyFormFilePath: info.privacyFormFilePath,
     surveyFilePath: info.surveyFilePath,
     outputDirectoryPath: info.outputDirectoryPath,
+    replaceNewlines: info.replaceNewlines,
   });
 
   return result.stats;
