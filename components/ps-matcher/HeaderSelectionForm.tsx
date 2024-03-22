@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ChevronsUpDown, Check, Loader2 } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@dja/ui/components/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -12,7 +12,7 @@ import { ViewStepComponent } from '@/hooks/use-multistep-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { IOSelection } from './IOSelectionForm';
-import { Input } from '../ui/input';
+import { Input } from '@dja/ui';
 
 const requiredString = z.string().min(1, 'This field is required.');
 

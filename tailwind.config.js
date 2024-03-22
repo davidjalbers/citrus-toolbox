@@ -2,7 +2,7 @@ import { fontFamily } from 'tailwindcss/defaultTheme';
 
 /** @type {import('tailwindcss').Config} */
 export const darkMode = ['class'];
-export const content = ['./{pages,components}/**/*.{ts,tsx}'];
+export const content = ['./{pages,components}/**/*.{ts,tsx}', './node_modules/@dja/ui/components/**/*.{ts,tsx}'];
 export const theme = {
   container: {
     center: true,

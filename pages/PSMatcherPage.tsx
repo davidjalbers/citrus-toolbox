@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 
 import { useTitleContext } from '@/components/title-context';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Button, Card, CardContent, CardFooter, CardHeader } from '@dja/ui';
 import { Steps } from '@/components/ui/steps';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { JobResultDisplay } from '@/components/ps-matcher/JobResultDisplay';
 import { useMultistepForm } from '@/hooks/use-multistep-form';
@@ -54,7 +53,11 @@ export function PSMatcherPage() {
           <Button
             className={cn('text-muted-foreground mt-6')}
             variant="link"
-            onClick={() => electron.openExternal(`mailto:${author.email}?subject=P%2BS%20Matcher%20Issue%20Report&body=Please%20describe%20the%20issue%20you%20are%20experiencing%20below.`)}
+            onClick={() =>
+              electron.openExternal(
+                `mailto:${author.email}?subject=P%2BS%20Matcher%20Issue%20Report&body=Please%20describe%20the%20issue%20you%20are%20experiencing%20below.`,
+              )
+            }
           >
             Report an issue
           </Button>

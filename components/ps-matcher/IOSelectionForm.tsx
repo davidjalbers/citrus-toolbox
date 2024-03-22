@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ChevronsUpDown, Check, Loader2 } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Input, Button } from '@dja/ui';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandGroup, CommandItem } from '@/components/ui/command';
 import { cn } from '@/lib/utils';

@@ -1,8 +1,7 @@
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { CardDescription, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
+import { Button, CardDescription, CardTitle } from '@dja/ui';
 import { JobResultStats } from '@/lib/business-logic/core';
 import { ViewStepComponent } from '@/hooks/use-multistep-form';
 import { IOSelection } from './IOSelectionForm';

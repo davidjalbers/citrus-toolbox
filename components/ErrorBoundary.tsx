@@ -1,9 +1,8 @@
 import React, { ReactNode } from 'react';
 import { AlertTriangleIcon } from 'lucide-react';
 import { FallbackProps, ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
-import { Card } from './ui/card';
+import { Card, Button } from '@dja/ui';
 import { cn } from '@/lib/utils';
-import { Button } from './ui/button';
 
 const FallbackComponent: React.FC<FallbackProps> = ({ error, resetErrorBoundary }) => {
   return (
