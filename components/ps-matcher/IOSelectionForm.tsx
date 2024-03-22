@@ -75,7 +75,7 @@ export const IOSelectionForm: ViewStepComponent<[], IOSelection> = ({ push }) =>
                     <Button
                       variant="outline"
                       role="combobox"
-                      className={cn('w-[200px] justify-between', !field.value && 'text-muted-foreground')}
+                      className={cn('w-[200px] justify-between shadow-sm', !field.value && 'text-muted-foreground')}
                     >
                       {field.value ? separators.find(sep => sep.value === field.value)?.label : 'Select separator'}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
