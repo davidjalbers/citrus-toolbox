@@ -7,7 +7,7 @@ import { VitePlugin } from '@electron-forge/plugin-vite';
 
 const config: ForgeConfig = {
   packagerConfig: {
-    icon: 'images/citrus'
+    icon: 'images/citrus',
   },
   rebuildConfig: {},
   makers: [new MakerSquirrel({}, ['win32']), new MakerZIP({}, ['darwin']), new MakerRpm({}), new MakerDeb({})],
