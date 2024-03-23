@@ -55,9 +55,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dja/ui@file:/Users/albers/zeus/packages/ui::locator=citrus-toolbox%40workspace%3A.":
+"@dja/ui@git@github.com:davidjalbers/zeus.git#head=develop&workspace=@dja/ui":
   version: 0.0.1
-  resolution: "@dja/ui@file:/Users/albers/zeus/packages/ui#/Users/albers/zeus/packages/ui::hash=a3392f&locator=citrus-toolbox%40workspace%3A."
+  resolution: "@dja/ui@git@github.com:davidjalbers/zeus.git#workspace=%40dja%2Fui&commit=252c902d2ac9c7d7765b6ad16ce9b70df4504761"
   dependencies:
     "@headlessui/react": "npm:^1.7.18"
     "@hookform/resolvers": "npm:^3.3.4"
@@ -77,7 +77,7 @@ __metadata:
     tailwindcss: "npm:^3.4.1"
     tailwindcss-animate: "npm:^1.0.7"
     zod: "npm:^3.22.4"
-  checksum: 10c0/c5f2403368cf873f5b71d77af6b80e1343c54810658e0a4a8b8e33dd8d4f0d237abd80416c1bf7deb55a598afd9f7b9e09976aa459f1ed4d3a1cd621f18148f8
+  checksum: 10c0/2487c8a4b5364c268531a0798d590b5b2384575256b0f2bef5f8b4cd2f393cb18990fe68dcf39a04629c02fcd91a53b7cf94a4cb1c3365dde624b0d196871526
   languageName: node
   linkType: hard
 
@@ -3107,7 +3107,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "citrus-toolbox@workspace:."
   dependencies:
-    "@dja/ui": "file:/Users/albers/zeus/packages/ui"
+    "@dja/ui": "git@github.com:davidjalbers/zeus.git#head=develop&workspace=@dja/ui"
     "@electron-forge/cli": "npm:^7.3.1"
     "@electron-forge/maker-deb": "npm:^7.3.1"
     "@electron-forge/maker-rpm": "npm:^7.3.1"
