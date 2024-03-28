@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext"
+  },
+  "ts-node": {
+    "moduleTypes": {
+      "repl.ts": "mjs"
+    }
+  }
+}
