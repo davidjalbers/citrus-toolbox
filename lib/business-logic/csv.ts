@@ -128,6 +128,7 @@ export async function writeJobResultToCsv(arg: {
     numberOfDuplicatesInSurvey: getNumberOfDuplicates(entry.indicesInSurvey),
     ...passthrough,
   }));
+  outputEntries = outputEntries.map(replaceBooleansWithFriendlyStrings);
   if (replaceNewlines) {
     outputEntries = outputEntries.map(replaceNewlinesWithSlashes);
   }
@@ -138,11 +139,13 @@ export async function writeJobResultToCsv(arg: {
   );
 
   let outputEntriesPrivacyForm = result.privacyFormEntries;
+  outputEntriesPrivacyForm = outputEntriesPrivacyForm.map(replaceBooleansWithFriendlyStrings);
   if (replaceNewlines) {
     outputEntriesPrivacyForm = outputEntriesPrivacyForm.map(replaceNewlinesWithSlashes);
   }
   const privacyFormOutput = stringify(outputEntriesPrivacyForm, { header: true });
   let outputEntriesSurvey = result.surveyEntries;
+  outputEntriesSurvey = outputEntriesSurvey.map(replaceBooleansWithFriendlyStrings);
   if (replaceNewlines) {
     outputEntriesSurvey = outputEntriesSurvey.map(replaceNewlinesWithSlashes);
   }
@@ -160,14 +163,27 @@ export async function writeJobResultToCsv(arg: {
   );
 }
 
-export function replaceNewlinesWithSlashes<T extends object>(obj: T): T {
+export function replaceNewlinesWithSlashes<T extends Record<string, unknown>>(obj: T): T {
   const newObj = {} as T;
   for (const key in obj) {
-    if (typeof obj[key] === 'string') {
-      // @ts-expect-error - we know that the value is a string
-      newObj[key] = obj[key].replace(/\n/g, ' / ');
+    const value = obj[key];
+    if (typeof value === 'string') {
+      newObj[key as keyof T] = value.replace(/\n/g, ' / ') as T[keyof T];
     } else {
-      newObj[key] = obj[key];
+      newObj[key as keyof T] = value as T[keyof T];
+    }
+  }
+  return newObj;
+}
+
+export function replaceBooleansWithFriendlyStrings<T extends Record<string, unknown>>(obj: T): T {
+  const newObj = {} as T;
+  for (const key in obj) {
+    const value = obj[key];
+    if (typeof value === 'boolean') {
+      newObj[key as keyof T] = value.toString() as T[keyof T];
+    } else {
+      newObj[key as keyof T] = value as T[keyof T];
     }
   }
   return newObj;
