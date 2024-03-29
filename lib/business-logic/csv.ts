@@ -2,13 +2,13 @@ import fs from 'fs';
 import path from 'path';
 
 import {
-  JobResult,
-  JobArg,
-  JobArgSchema,
-  PrivacyFormEntry,
-  PrivacyFormEntrySchema,
-  SurveyEntry,
-  SurveyEntrySchema,
+  TInternal_JobResult,
+  TInternal_JobArg,
+  SInternal_JobArg,
+  TInput_PrivacyFormEntry,
+  SInput_PrivacyFormEntry,
+  TInput_SurveyEntry,
+  SInput_SurveyEntry,
 } from './core';
 
 import { stringify } from 'csv-stringify/sync';
@@ -30,7 +30,7 @@ export async function createJobArgFromCsv(arg: {
   surveyFilePath: string;
   surveyIdentifierHeader: string;
   separator: string;
-}): Promise<JobArg> {
+}): Promise<TInternal_JobArg> {
   const {
     privacyFormFilePath,
     privacyFormIdentifierHeader,
@@ -81,23 +81,25 @@ export async function createJobArgFromCsv(arg: {
     delimiter: separator,
     columns: privacyFormHeaderTransformer,
   });
-  const privacyFormEntries: PrivacyFormEntry[] = privacyFormRecords.map(record => {
-    return PrivacyFormEntrySchema.parse({
-      ...record,
-      // @ts-expect-error - if the record doesn't have consent, the zod validation will fail anyway
-      consent: privacyFormConsentTransformer(record.consent),
-    });
-  });
-
+  const privacyFormEntries: TInput_PrivacyFormEntry[] = privacyFormRecords
+    .map(record => {
+      return SInput_PrivacyFormEntry.parse({
+        ...record,
+        // @ts-expect-error - if the record doesn't have consent, the zod validation will fail anyway
+        consent: privacyFormConsentTransformer(record.consent),
+      });
+    })
+    .filter(entry => entry.identifier !== '');
   const surveyContent = fs.readFileSync(surveyFilePath, 'utf-8');
   const surveyRecords: object[] = parse(surveyContent, {
     bom: true,
     delimiter: separator,
     columns: surveyHeaderTransformer,
   });
-  const surveyEntries: SurveyEntry[] = surveyRecords.map(record => SurveyEntrySchema.parse(record));
-
-  return JobArgSchema.parse({ privacyFormEntries, surveyEntries });
+  const surveyEntries: TInput_SurveyEntry[] = surveyRecords
+    .map(record => SInput_SurveyEntry.parse(record))
+    .filter(entry => entry.identifier !== '');
+  return SInternal_JobArg.parse({ privacyFormEntries, surveyEntries });
 }
 
 const statusVisualization = {
@@ -111,7 +113,7 @@ const statusVisualization = {
 const getNumberOfDuplicates = (indices: number[]) => Math.max(indices.length - 1, 0);
 
 export async function writeJobResultToCsv(arg: {
-  result: JobResult;
+  result: TInternal_JobResult;
   outputDirectoryPath: string;
   privacyFormFilePath: string;
   surveyFilePath: string;

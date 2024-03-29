@@ -1,48 +1,48 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as z from 'zod';
 
-export const PrivacyFormEntrySchema = z
+export const SInput_PrivacyFormEntry = z
   .object({
     identifier: z.string(),
     consent: z.boolean(),
   })
   .passthrough();
-export type PrivacyFormEntry = z.infer<typeof PrivacyFormEntrySchema>;
-
-export const SurveyEntrySchema = z
+export const SInput_SurveyEntry = z
   .object({
     identifier: z.string(),
   })
   .passthrough();
-export type SurveyEntry = z.infer<typeof SurveyEntrySchema>;
-
-const StatusSchema = z.enum([
+const SStatus = z.enum([
   'OK_VALID',
   'ERROR_NO_CONSENT',
   'ERROR_ONLY_PRIVACY_FORM',
   'ERROR_ONLY_SURVEY',
   'ERROR_INVALID',
 ]);
-export type Status = z.infer<typeof StatusSchema>;
-
-const CommentedEntrySchema = z.object({
-  status: StatusSchema,
+const SOutput_CommentedInputEntry = z.object({
+  status: SStatus,
   mostRecentOccurence: z.union([z.literal('this'), z.number()]),
 });
-
-const EntrySchema = z.object({
+const SInternal_UnprocessedEntry = z.object({
   identifier: z.string(),
-  status: StatusSchema,
+  consent: z.boolean(),
+  indexUsedForConsent: z.number(),
+  privacyFormOccurrences: SInput_PrivacyFormEntry.extend({ index: z.number() }).array(),
+  surveyOccurrences: SInput_SurveyEntry.extend({
+    index: z.number(),
+    passthrough: z.record(z.unknown()).optional(),
+  }).array(),
+});
+const SOutput_ResultEntry = z.object({
+  identifier: z.string(),
+  consent: z.boolean(),
+  indexUsedForConsent: z.number(),
+  status: SStatus,
   indicesInPrivacyForm: z.array(z.number()),
   indicesInSurvey: z.array(z.number()),
   passthrough: z.record(z.unknown()).optional(),
 });
-
-type Entry = z.infer<typeof EntrySchema>;
-
-type UnprocessedEntry = PrivacyFormEntry & Omit<Entry, 'status'>;
-
-const JobResultStatsSchema = z.object({
+const SInternal_JobStats = z.object({
   timestamp: z.date(),
   totalEntries: z.number(),
   totalUniqueIdentifiers: z.number(),
@@ -53,25 +53,29 @@ const JobResultStatsSchema = z.object({
   onlySurvey: z.number(),
   invalid: z.number(),
 });
-export type JobResultStats = z.infer<typeof JobResultStatsSchema>;
-
-const JobResultSchema = z.object({
-  stats: JobResultStatsSchema,
-  privacyFormEntries: z.array(PrivacyFormEntrySchema.merge(CommentedEntrySchema).passthrough()),
-  surveyEntries: z.array(SurveyEntrySchema.merge(CommentedEntrySchema).passthrough()),
-  uniqueEntries: z.array(EntrySchema),
+const SInternal_JobResult = z.object({
+  stats: SInternal_JobStats,
+  privacyFormEntries: z.array(SInput_PrivacyFormEntry.merge(SOutput_CommentedInputEntry).passthrough()),
+  surveyEntries: z.array(SInput_SurveyEntry.merge(SOutput_CommentedInputEntry).passthrough()),
+  uniqueEntries: z.array(SOutput_ResultEntry),
 });
-export type JobResult = z.infer<typeof JobResultSchema>;
-
-export const JobArgSchema = z.object({
-  privacyFormEntries: z.array(PrivacyFormEntrySchema),
-  surveyEntries: z.array(SurveyEntrySchema),
+export const SInternal_JobArg = z.object({
+  privacyFormEntries: z.array(SInput_PrivacyFormEntry),
+  surveyEntries: z.array(SInput_SurveyEntry),
 });
-export type JobArg = z.infer<typeof JobArgSchema>;
 
-export function executeJob(rawArg: JobArg): JobResult {
-  const arg = JobArgSchema.parse(rawArg);
-  const result: JobResult = {
+export type TInput_PrivacyFormEntry = z.infer<typeof SInput_PrivacyFormEntry>;
+export type TInput_SurveyEntry = z.infer<typeof SInput_SurveyEntry>;
+export type TStatus = z.infer<typeof SStatus>;
+// type TOutput_ResultEntry = z.infer<typeof SOutput_ResultEntry>;
+type TInternal_UnprocessedEntry = z.infer<typeof SInternal_UnprocessedEntry>;
+export type TInternal_JobStats = z.infer<typeof SInternal_JobStats>;
+export type TInternal_JobResult = z.infer<typeof SInternal_JobResult>;
+export type TInternal_JobArg = z.infer<typeof SInternal_JobArg>;
+
+export function executeJob(rawArg: TInternal_JobArg): TInternal_JobResult {
+  const arg = SInternal_JobArg.parse(rawArg);
+  const result: TInternal_JobResult = {
     stats: {
       timestamp: new Date(),
       totalEntries: 0,
@@ -87,7 +91,7 @@ export function executeJob(rawArg: JobArg): JobResult {
     surveyEntries: [],
     uniqueEntries: [],
   };
-  const entries = new Map<string, UnprocessedEntry>();
+  const entries = new Map<string, TInternal_UnprocessedEntry>();
   arg.privacyFormEntries.forEach((newEntry, index) => {
     result.stats.totalEntries++;
     const { identifier, consent } = newEntry;
@@ -95,14 +99,16 @@ export function executeJob(rawArg: JobArg): JobResult {
       entries.set(identifier, {
         identifier,
         consent,
-        indicesInPrivacyForm: [index],
-        indicesInSurvey: [],
+        indexUsedForConsent: index,
+        privacyFormOccurrences: [{ ...newEntry, index }],
+        surveyOccurrences: [],
       });
     } else {
       result.stats.totalDuplicates++;
       const existingEntry = entries.get(identifier)!;
-      existingEntry.indicesInPrivacyForm.push(index);
+      existingEntry.privacyFormOccurrences.push({ ...newEntry, index });
       existingEntry.consent = newEntry.consent; // Assumption: The last entry for a study code is the most recent one and therefore reflects the participant's current consent status, so overwrite
+      existingEntry.indexUsedForConsent = index;
     }
   });
   arg.surveyEntries.forEach((newEntry, index) => {
@@ -112,23 +118,24 @@ export function executeJob(rawArg: JobArg): JobResult {
       entries.set(identifier, {
         identifier,
         consent: false,
-        indicesInPrivacyForm: [],
-        indicesInSurvey: [index],
-        passthrough,
+        indexUsedForConsent: -1,
+        privacyFormOccurrences: [],
+        surveyOccurrences: [{ ...newEntry, index, passthrough }],
       });
     } else {
-      result.stats.totalDuplicates++;
       const existingEntry = entries.get(identifier)!;
-      existingEntry.indicesInSurvey.push(index);
-      existingEntry.passthrough = passthrough; // Assumption: The last entry for a study code is the most recent one, so overwrite the passthrough data
+      if (existingEntry.surveyOccurrences.length != 0) {
+        result.stats.totalDuplicates++;
+      }
+      existingEntry.surveyOccurrences.push({ ...newEntry, index, passthrough });
     }
   });
   result.stats.totalUniqueIdentifiers = entries.size;
   // Compute status
   entries.forEach(entry => {
-    const { consent, indicesInPrivacyForm, indicesInSurvey } = entry;
-    let status: Status;
-    if (indicesInPrivacyForm.length > 0 && indicesInSurvey.length > 0) {
+    const { consent, privacyFormOccurrences, surveyOccurrences } = entry;
+    let status: TStatus;
+    if (privacyFormOccurrences.length > 0 && surveyOccurrences.length > 0) {
       if (consent) {
         result.stats.valid++;
         status = 'OK_VALID';
@@ -136,17 +143,32 @@ export function executeJob(rawArg: JobArg): JobResult {
         result.stats.noConsent++;
         status = 'ERROR_NO_CONSENT';
       }
-    } else if (indicesInPrivacyForm.length > 0) {
+    } else if (privacyFormOccurrences.length > 0) {
       result.stats.onlyPrivacyForm++;
       status = 'ERROR_ONLY_PRIVACY_FORM';
-    } else if (indicesInSurvey.length > 0) {
+    } else if (surveyOccurrences.length > 0) {
       result.stats.onlySurvey++;
       status = 'ERROR_ONLY_SURVEY';
     } else {
       result.stats.invalid++;
       status = 'ERROR_INVALID';
     }
-    result.uniqueEntries.push({ ...entry, status });
+    const pushToUniqueEntries = (passthrough: Record<string, unknown> | undefined) => {
+      result.uniqueEntries.push({
+        identifier: entry.identifier,
+        consent: entry.consent,
+        indexUsedForConsent: entry.indexUsedForConsent,
+        status,
+        indicesInPrivacyForm: privacyFormOccurrences.map(({ index }) => index),
+        indicesInSurvey: surveyOccurrences.map(({ index }) => index),
+        passthrough: passthrough,
+      });
+    };
+    if (surveyOccurrences.length > 0) {
+      surveyOccurrences.forEach(surveyEntry => pushToUniqueEntries(surveyEntry.passthrough));
+    } else {
+      pushToUniqueEntries({});
+    }
   });
   // Write commented privacy form entries
   arg.privacyFormEntries.forEach((entry, index) => {
@@ -172,5 +194,5 @@ export function executeJob(rawArg: JobArg): JobResult {
       mostRecentOccurence: lastIndex === index ? 'this' : lastIndex,
     });
   });
-  return JobResultSchema.parse(result);
+  return SInternal_JobResult.parse(result);
 }

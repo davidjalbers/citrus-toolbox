@@ -2,13 +2,13 @@ import React from 'react';
 
 import { cn } from '@/lib/utils';
 import { Button, CardDescription, CardTitle } from '@dja/ui';
-import { JobResultStats } from '@/lib/business-logic/core';
+import { TInternal_JobStats } from '@/lib/business-logic/core';
 import { ViewStepComponent } from '@/hooks/use-multistep-form';
 import { IOSelection } from './IOSelectionForm';
 import { HeaderSelection } from './HeaderSelectionForm';
 import { Headers } from '@/lib/schemas';
 
-export const JobResultDisplay: ViewStepComponent<[IOSelection, Headers, HeaderSelection, JobResultStats], void> = ({
+export const JobResultDisplay: ViewStepComponent<[IOSelection, Headers, HeaderSelection, TInternal_JobStats], void> = ({
   data,
 }) => {
   const { outputDirectoryPath, privacyFormFilePath, surveyFilePath } = data[0];

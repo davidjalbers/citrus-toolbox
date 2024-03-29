@@ -1,6 +1,6 @@
 import { Headers } from '@/lib/schemas';
 import { createJobArgFromCsv, getHeadersFromCsv, writeJobResultToCsv } from './csv';
-import { JobResultStats, executeJob } from './core';
+import { TInternal_JobStats, executeJob } from './core';
 import { IOSelection } from '@/components/ps-matcher/IOSelectionForm';
 import { HeaderSelection } from '@/components/ps-matcher/HeaderSelectionForm';
 
@@ -19,7 +19,7 @@ export async function processInputSelectionImpl(info: IOSelection): Promise<Head
 
 export async function processColumnDefinitionAndRunJobImpl(
   info: IOSelection & HeaderSelection,
-): Promise<JobResultStats> {
+): Promise<TInternal_JobStats> {
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   const arg = await createJobArgFromCsv({
